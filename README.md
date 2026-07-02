@@ -76,6 +76,7 @@ Ver **INSTALL.md** para la guía paso a paso de instalación y despliegue.
 ## Comandos disponibles
 
 ```bash
+cd app
 npm install           # Instala dependencias
 npm run setup         # Crea un restaurante nuevo (te pregunta nombre, usuario, etc.)
 npm run seed-demo     # Crea un restaurante de ejemplo ya cargado con menú y 5 mesas
