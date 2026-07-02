@@ -71,7 +71,7 @@ restaurant-qr-menu/
 └── package.json
 ```
 
-Ver **INSTALL.md** para la guía paso a paso de instalación y despliegue.
+Ver dentro de app **INSTALL.md** para la guía paso a paso de instalación y despliegue.
 
 ## Comandos disponibles
 
