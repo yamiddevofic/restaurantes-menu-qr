@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Menu</title>
+<link rel="stylesheet" href="/menu/style.css">
+</head>
+<body>
+  <div id="app">
+    <header class="topbar">
+      <div>
+        <h1 id="restaurantName">Cargando...</h1>
+        <p id="tableLabel" class="muted"></p>
+      </div>
+    </header>
+
+    <div id="loading" class="state-msg">Cargando menu...</div>
+    <div id="errorBox" class="state-msg error" style="display:none;"></div>
+
+    <main id="menuContent" style="display:none;">
+      <nav id="categoryTabs" class="category-tabs"></nav>
+      <div id="itemsList" class="items-list"></div>
+    </main>
+
+    <button id="cartButton" class="cart-fab" style="display:none;">
+      🛒 <span id="cartCount">0</span> · <span id="cartTotal">$0</span>
+    </button>
+
+    <div id="cartOverlay" class="overlay" style="display:none;">
+      <div class="sheet">
+        <div class="sheet-header">
+          <h2>Tu pedido</h2>
+          <button id="closeCart" class="icon-btn">✕</button>
+        </div>
+        <div id="cartItems" class="cart-items"></div>
+        <div class="cart-note">
+          <label for="customerNote">Nota para la cocina (opcional)</label>
+          <textarea id="customerNote" maxlength="300" placeholder="Ej: sin cebolla, para llevar..."></textarea>
+        </div>
+        <div class="cart-footer">
+          <div class="cart-total-row">
+            <span>Total</span>
+            <strong id="cartFooterTotal">$0</strong>
+          </div>
+          <button id="submitOrder" class="btn-primary">Enviar pedido a cocina</button>
+          <p id="submitError" class="error" style="display:none;"></p>
+        </div>
+      </div>
+    </div>
+
+    <div id="successOverlay" class="overlay" style="display:none;">
+      <div class="sheet success-sheet">
+        <div class="success-icon">✅</div>
+        <h2>¡Pedido enviado!</h2>
+        <p>Codigo: <strong id="orderCode"></strong></p>
+        <p class="muted">Tu pedido llego a la cocina. Aqui puedes ver el estado:</p>
+        <div id="orderStatus" class="status-badge">Pendiente</div>
+        <button id="newOrderBtn" class="btn-secondary">Hacer otro pedido</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/menu/app.js"></script>
+</body>
+</html>

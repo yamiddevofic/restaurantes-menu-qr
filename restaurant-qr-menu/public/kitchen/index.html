@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cocina - Pedidos</title>
+<link rel="stylesheet" href="/kitchen/style.css">
+</head>
+<body>
+
+  <div id="loginScreen" class="login-screen">
+    <form id="loginForm" class="login-box">
+      <h1>Panel de Cocina</h1>
+      <label>Usuario</label>
+      <input type="text" id="username" required autocomplete="username">
+      <label>Contrasena</label>
+      <input type="password" id="password" required autocomplete="current-password">
+      <button type="submit">Ingresar</button>
+      <p id="loginError" class="error" style="display:none;"></p>
+    </form>
+  </div>
+
+  <div id="dashboard" class="dashboard" style="display:none;">
+    <header class="dash-header">
+      <h1 id="restaurantTitle">Cocina</h1>
+      <div class="header-right">
+        <span id="connStatus" class="conn-status offline">● desconectado</span>
+        <button id="logoutBtn" class="btn-ghost">Salir</button>
+      </div>
+    </header>
+
+    <div class="columns">
+      <section class="column">
+        <h2>🟡 Pendientes <span id="countPending" class="count">0</span></h2>
+        <div id="colPending" class="cards"></div>
+      </section>
+      <section class="column">
+        <h2>🔵 Preparando <span id="countPreparing" class="count">0</span></h2>
+        <div id="colPreparing" class="cards"></div>
+      </section>
+      <section class="column">
+        <h2>🟢 Listos <span id="countReady" class="count">0</span></h2>
+        <div id="colReady" class="cards"></div>
+      </section>
+    </div>
+  </div>
+
+  <audio id="notifSound" src="data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=" preload="auto"></audio>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/kitchen/app.js"></script>
+</body>
+</html>

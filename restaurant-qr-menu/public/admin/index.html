@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Administracion - Menu QR</title>
+<link rel="stylesheet" href="/admin/style.css">
+</head>
+<body>
+
+  <div id="loginScreen" class="login-screen">
+    <form id="loginForm" class="login-box">
+      <h1>Panel de Administracion</h1>
+      <label>Usuario</label>
+      <input type="text" id="username" required autocomplete="username">
+      <label>Contrasena</label>
+      <input type="password" id="password" required autocomplete="current-password">
+      <button type="submit">Ingresar</button>
+      <p id="loginError" class="error" style="display:none;"></p>
+    </form>
+  </div>
+
+  <div id="dashboard" class="dashboard" style="display:none;">
+    <header class="dash-header">
+      <h1 id="restaurantTitle">Administracion</h1>
+      <div class="header-right">
+        <a href="/kitchen" target="_blank" class="btn-ghost">Ver cocina ↗</a>
+        <button id="logoutBtn" class="btn-ghost">Salir</button>
+      </div>
+    </header>
+
+    <nav class="tabs">
+      <button class="tab-btn active" data-tab="categories">Categorias</button>
+      <button class="tab-btn" data-tab="items">Platos</button>
+      <button class="tab-btn" data-tab="tables">Mesas y codigos QR</button>
+    </nav>
+
+    <!-- CATEGORIAS -->
+    <section id="tab-categories" class="tab-panel">
+      <form id="categoryForm" class="inline-form">
+        <input type="text" id="categoryName" placeholder="Nombre de la categoria (ej. Entradas)" required maxlength="100">
+        <button type="submit">Agregar</button>
+      </form>
+      <div id="categoriesList" class="list"></div>
+    </section>
+
+    <!-- PLATOS -->
+    <section id="tab-items" class="tab-panel" style="display:none;">
+      <form id="itemForm" class="grid-form">
+        <input type="text" id="itemName" placeholder="Nombre del plato" required maxlength="150">
+        <select id="itemCategory"></select>
+        <input type="number" id="itemPrice" placeholder="Precio" required min="0" step="1">
+        <input type="text" id="itemImage" placeholder="URL de imagen (opcional)">
+        <textarea id="itemDescription" placeholder="Descripcion (opcional)" maxlength="500"></textarea>
+        <button type="submit">Agregar plato</button>
+      </form>
+      <div id="itemsList" class="list"></div>
+    </section>
+
+    <!-- MESAS -->
+    <section id="tab-tables" class="tab-panel" style="display:none;">
+      <form id="tableForm" class="inline-form">
+        <input type="text" id="tableNumber" placeholder="Numero o nombre de mesa (ej. 5)" required maxlength="20">
+        <button type="submit">Crear mesa</button>
+      </form>
+      <div id="tablesList" class="tables-grid"></div>
+    </section>
+  </div>
+
+  <script src="/admin/app.js"></script>
+</body>
+</html>
