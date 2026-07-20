@@ -50,8 +50,8 @@ router.post(
 
     res.cookie('session', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'lax' : false,
+      secure: false, // false en desarrollo para permitir acceso desde IP
+      sameSite: 'lax',
       maxAge: 12 * 60 * 60 * 1000,
     });
 

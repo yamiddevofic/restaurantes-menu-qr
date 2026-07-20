@@ -9,6 +9,7 @@ const compression = require('compression');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 const http = require('http');
+const os = require('os');
 const { Server } = require('socket.io');
 
 const authRoutes = require('./routes/auth');
@@ -21,11 +22,29 @@ const app = express();
 const server = http.createServer(app);
 
 const PORT = process.env.PORT || 3000;
-const corsOrigins = (process.env.CORS_ORIGINS || '').split(',').map((s) => s.trim()).filter(Boolean);
+
+/* ---------- Auto-detectar IP local para BASE_URL ---------- */
+if (!process.env.BASE_URL) {
+  const interfaces = os.networkInterfaces();
+  for (const name of Object.keys(interfaces)) {
+    for (const iface of interfaces[name]) {
+      if (iface.family === 'IPv4' && !iface.internal) {
+        process.env.BASE_URL = `http://${iface.address}:${PORT}`;
+        break;
+      }
+    }
+    if (process.env.BASE_URL) break;
+  }
+  if (!process.env.BASE_URL) {
+    process.env.BASE_URL = `http://localhost:${PORT}`;
+  }
+  console.log(`BASE_URL auto-detectada: ${process.env.BASE_URL}`);
+}
+const corsOrigins = (process.env.CORS_ORIGINS || 'http://localhost:5173,http://localhost:3000').split(',').map((s) => s.trim()).filter(Boolean);
 
 const io = new Server(server, {
   cors: {
-    origin: corsOrigins.length ? corsOrigins : true,
+    origin: corsOrigins.length ? corsOrigins : ['http://localhost:5173', 'http://localhost:3000'],
     credentials: true,
   },
 });
@@ -42,7 +61,7 @@ app.use(cookieParser());
 app.use(express.json({ limit: '200kb' }));
 app.use(
   cors({
-    origin: corsOrigins.length ? corsOrigins : (origin, callback) => callback(null, true),
+    origin: corsOrigins.length ? corsOrigins : ['http://localhost:5173', 'http://localhost:3000'],
     credentials: true,
   })
 );
@@ -64,25 +83,9 @@ app.use('/api/admin', adminRoutes);
 
 app.get('/api/health', (req, res) => res.json({ ok: true, time: new Date().toISOString() }));
 
-/* ---------- Frontend estatico ---------- */
-app.use('/menu', express.static(path.join(__dirname, '..', 'public', 'menu')));
-app.get('/menu/:slug/:tableToken', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'public', 'menu', 'index.html'));
-});
-
-app.use('/kitchen', express.static(path.join(__dirname, '..', 'public', 'kitchen')));
-app.get('/kitchen', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'public', 'kitchen', 'index.html'));
-});
-
-app.use('/admin', express.static(path.join(__dirname, '..', 'public', 'admin')));
-app.get('/admin', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'public', 'admin', 'index.html'));
-});
-
-app.get('/', (req, res) => {
-  res.redirect('/admin');
-});
+/* ---------- Frontend estatico (para desarrollo) ---------- */
+// En producción, el frontend se servirá desde el build de React
+app.use('/data', express.static(path.join(__dirname, '..', 'public', 'data')));
 
 /* ---------- Manejo de errores ---------- */
 app.use((req, res) => {
@@ -96,21 +99,11 @@ app.use((err, req, res, next) => {
 });
 
 server.listen(PORT, '0.0.0.0', () => {
-  const os = require('os');
-  const interfaces = os.networkInterfaces();
-  let localIP = 'localhost';
-  
-  for (const name of Object.keys(interfaces)) {
-    for (const iface of interfaces[name]) {
-      if (iface.family === 'IPv4' && !iface.internal) {
-        localIP = iface.address;
-        break;
-      }
-    }
-  }
+  const localIP = process.env.BASE_URL.replace(/^https?:\/\//, '').replace(/:\d+$/, '');
   
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
   console.log(`Red local:   http://${localIP}:${PORT}`);
   console.log(`Admin:       http://${localIP}:${PORT}/admin`);
   console.log(`Cocina:      http://${localIP}:${PORT}/kitchen`);
+  console.log(`Base URL:    ${process.env.BASE_URL}`);
 });

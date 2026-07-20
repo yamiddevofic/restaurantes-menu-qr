@@ -111,9 +111,12 @@
       heading.textContent = cat.name;
       section.appendChild(heading);
 
+      const carousel = document.createElement('div');
+      carousel.className = 'items-carousel';
       itemsByCategory[cat.id].forEach((item) => {
-        section.appendChild(renderItemCard(item));
+        carousel.appendChild(renderItemCard(item));
       });
+      section.appendChild(carousel);
 
       els.itemsList.appendChild(section);
     });
@@ -131,9 +134,11 @@
       ${imageHtml}
       <div class="item-content">
         <div class="item-info">
-          <h3>${escapeHtml(item.name)}</h3>
+          <div class="item-head">
+            <h3>${escapeHtml(item.name)}</h3>
+            <div class="item-price">${money(item.price)}</div>
+          </div>
           ${item.description ? `<p>${escapeHtml(item.description)}</p>` : ''}
-          <div class="item-price">${money(item.price)}</div>
         </div>
         <div class="item-controls">
           <button class="qty-btn minus">−</button>

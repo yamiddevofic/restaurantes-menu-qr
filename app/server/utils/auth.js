@@ -1,11 +1,11 @@
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-key-change-in-production';
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '12h';
 
-if (!JWT_SECRET || JWT_SECRET === 'CAMBIA_ESTO_POR_UN_SECRETO_LARGO_Y_UNICO') {
+if (!process.env.JWT_SECRET) {
   console.warn(
-    '[AVISO DE SEGURIDAD] JWT_SECRET no esta configurado o usa el valor por defecto. ' +
+    '[AVISO DE SEGURIDAD] JWT_SECRET no esta configurado. ' +
     'Configura un secreto unico y largo en tu archivo .env antes de ir a produccion.'
   );
 }

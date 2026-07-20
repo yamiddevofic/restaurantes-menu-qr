@@ -8,8 +8,26 @@
 require('dotenv').config();
 const path = require('path');
 const fs = require('fs');
+const os = require('os');
 const QRCode = require('qrcode');
 const db = require('../server/db');
+
+/* ---------- Auto-detectar IP local para BASE_URL ---------- */
+if (!process.env.BASE_URL) {
+  const interfaces = os.networkInterfaces();
+  for (const name of Object.keys(interfaces)) {
+    for (const iface of interfaces[name]) {
+      if (iface.family === 'IPv4' && !iface.internal) {
+        process.env.BASE_URL = `http://${iface.address}:${process.env.PORT || 3000}`;
+        break;
+      }
+    }
+    if (process.env.BASE_URL) break;
+  }
+  if (!process.env.BASE_URL) {
+    process.env.BASE_URL = 'http://localhost:3000';
+  }
+}
 
 const slug = process.argv[2];
 

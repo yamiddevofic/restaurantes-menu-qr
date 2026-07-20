@@ -1,4 +1,4 @@
-:root {
+.kitchen-page {
   --bg: #1a1d23;
   --panel: #23272f;
   --card: #2c313c;
@@ -9,22 +9,19 @@
   --blue: #3498db;
   --green: #2ecc71;
   --red: #e74c3c;
-}
-* { box-sizing: border-box; }
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
   background: var(--bg);
   color: var(--text);
+  min-height: 100vh;
 }
 
-.login-screen {
+.kitchen-page .login-screen {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-.login-box {
+.kitchen-page .login-box {
   background: var(--panel);
   padding: 32px;
   border-radius: 16px;
@@ -33,9 +30,9 @@ body {
   flex-direction: column;
   gap: 8px;
 }
-.login-box h1 { margin: 0 0 16px; font-size: 1.3rem; text-align: center; }
-.login-box label { font-size: 0.85rem; color: var(--muted); margin-top: 8px; }
-.login-box input {
+.kitchen-page .login-box h1 { margin: 0 0 16px; font-size: 1.3rem; text-align: center; }
+.kitchen-page .login-box label { font-size: 0.85rem; color: var(--muted); margin-top: 8px; }
+.kitchen-page .login-box input {
   background: var(--card);
   border: 1px solid var(--border);
   color: var(--text);
@@ -43,7 +40,7 @@ body {
   border-radius: 8px;
   font-size: 1rem;
 }
-.login-box button {
+.kitchen-page .login-box button {
   margin-top: 16px;
   background: var(--blue);
   color: white;
@@ -53,9 +50,13 @@ body {
   font-size: 1rem;
   font-weight: 600;
 }
-.error { color: var(--red); font-size: 0.85rem; }
+.kitchen-page .error { color: var(--red); font-size: 0.85rem; }
 
-.dash-header {
+.kitchen-page .dashboard {
+  min-height: 100vh;
+}
+
+.kitchen-page .dash-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -66,28 +67,28 @@ body {
   border-bottom: 1px solid rgba(58, 64, 80, 0.2);
   position: relative;
 }
-.dash-header h1 {
+.kitchen-page .dash-header h1 {
   margin: 0;
   font-size: 1.05rem;
   font-weight: 600;
 }
-.header-right { display: flex; align-items: center; gap: 16px; }
-.conn-status {
+.kitchen-page .header-right { display: flex; align-items: center; gap: 16px; }
+.kitchen-page .conn-status {
   font-size: 0.8rem;
   padding: 4px 10px;
   border-radius: 999px;
   font-weight: 500;
   background: rgba(255,255,255,0.05);
 }
-.conn-status.online {
+.kitchen-page .conn-status.online {
   color: var(--green);
   background: rgba(46, 204, 113, 0.1);
 }
-.conn-status.offline {
+.kitchen-page .conn-status.offline {
   color: var(--red);
   background: rgba(231, 76, 60, 0.1);
 }
-.btn-ghost {
+.kitchen-page .btn-ghost {
   background: rgba(255,255,255,0.06);
   border: 1px solid rgba(255,255,255,0.1);
   color: var(--text);
@@ -101,63 +102,64 @@ body {
   align-items: center;
   gap: 6px;
 }
-.btn-ghost:hover {
+.kitchen-page .btn-ghost:hover {
   background: rgba(255,255,255,0.12);
   border-color: rgba(255,255,255,0.2);
   transform: translateY(-1px);
 }
 
-.columns {
+.kitchen-page .columns {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 16px;
   padding: 20px;
 }
 @media (max-width: 900px) {
-  .columns { grid-template-columns: 1fr; }
+  .kitchen-page .columns { grid-template-columns: 1fr; }
 }
-.column h2 {
+.kitchen-page .column h2 {
   font-size: 1rem;
   display: flex;
   align-items: center;
   gap: 8px;
   margin-bottom: 12px;
 }
-.count {
+.kitchen-page .count {
   background: var(--card);
   border-radius: 999px;
   padding: 2px 10px;
   font-size: 0.85rem;
 }
-.cards { display: flex; flex-direction: column; gap: 12px; min-height: 60px; }
+.kitchen-page .cards { display: flex; flex-direction: column; gap: 12px; min-height: 60px; }
 
-.order-card {
+.kitchen-page .order-card {
   background: var(--card);
   border: 1px solid var(--border);
   border-left: 4px solid var(--yellow);
   border-radius: 12px;
   padding: 14px;
 }
-.order-card.preparing { border-left-color: var(--blue); }
-.order-card.ready { border-left-color: var(--green); }
+.kitchen-page .order-card.preparing { border-left-color: var(--blue); }
+.kitchen-page .order-card.ready { border-left-color: var(--green); }
 
-.order-card-header {
+.kitchen-page .order-header {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
   margin-bottom: 8px;
 }
-.order-table { font-weight: 700; font-size: 1.05rem; }
-.order-time { font-size: 0.8rem; color: var(--muted); }
-.order-code { font-size: 0.75rem; color: var(--muted); }
+.kitchen-page .order-table { font-weight: 700; font-size: 1.05rem; }
+.kitchen-page .order-time { font-size: 0.8rem; color: var(--muted); }
+.kitchen-page .order-code { font-size: 0.75rem; color: var(--muted); }
 
-.order-items { list-style: none; margin: 0 0 10px; padding: 0; }
-.order-items li { padding: 3px 0; font-size: 0.95rem; }
-.order-items .qty { color: var(--yellow); font-weight: 700; margin-right: 6px; }
-.order-note { font-size: 0.85rem; color: var(--muted); font-style: italic; margin: 6px 0; }
+.kitchen-page .order-items { display: flex; flex-direction: column; gap: 4px; margin: 0 0 10px; padding: 0; }
+.kitchen-page .order-item { display: flex; gap: 8px; font-size: 0.95rem; }
+.kitchen-page .item-qty { color: var(--yellow); font-weight: 700; }
+.kitchen-page .item-name { flex: 1; }
+.kitchen-page .order-note { font-size: 0.85rem; color: var(--muted); font-style: italic; margin: 6px 0; }
 
-.order-actions { display: flex; gap: 8px; margin-top: 10px; }
-.order-actions button {
+.kitchen-page .order-actions { display: flex; gap: 8px; margin-top: 10px; }
+.kitchen-page .order-actions button {
   flex: 1;
   border: none;
   border-radius: 8px;
@@ -165,9 +167,7 @@ body {
   font-weight: 600;
   cursor: pointer;
 }
-.btn-advance { background: var(--blue); color: white; }
-.btn-advance.to-ready { background: var(--green); }
-.btn-advance.to-delivered { background: var(--muted); color: #1a1d23; }
-.btn-cancel { background: transparent; color: var(--red); border: 1px solid var(--red) !important; }
+.kitchen-page .btn-primary { background: var(--blue); color: white; }
+.kitchen-page .btn-success { background: var(--green); color: white; }
 
-.empty-col { color: var(--muted); font-size: 0.85rem; text-align: center; padding: 20px 0; }
+.kitchen-page .empty-col { color: var(--muted); font-size: 0.85rem; text-align: center; padding: 20px 0; }
