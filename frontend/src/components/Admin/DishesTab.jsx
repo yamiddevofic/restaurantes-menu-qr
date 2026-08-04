@@ -186,7 +186,7 @@ export default function DishesTab() {
   };
 
   return (
-    <section className="px-4 w-screen bg-red-500 mx-auto max-w-full my-auto max-h-screen">
+    <section className="bg-none !p-4">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-xl md:text-2xl font-bold text-white tracking-tight">Menu</h2>
@@ -212,7 +212,7 @@ export default function DishesTab() {
 
       <div className="space-y-4">
         {showCategoryForm && (
-          <form onSubmit={handleAddCategory} className="flex gap-2.5 p-4 bg-[#2d2d2d] border border-[#404040] rounded-xl">
+          <form onSubmit={handleAddCategory} className="flex gap-2.5 !p-4 bg-[#2d2d2d] border border-[#404040] rounded-xl">
             <input
               ref={catInputRef}
               type="text"
@@ -241,7 +241,7 @@ export default function DishesTab() {
         )}
 
         {showItemForm && (
-          <form onSubmit={handleAddItem} className="grid grid-cols-1 md:grid-cols-2 gap-3 p-5 bg-[#2d2d2d] border border-[#404040] rounded-xl">
+          <form onSubmit={handleAddItem} className="grid grid-cols-1 md:grid-cols-2 gap-3 !p-5 bg-[#2d2d2d] border border-[#404040] rounded-xl">
             <input
               ref={itemInputRef}
               type="text"
@@ -356,7 +356,7 @@ export default function DishesTab() {
           <p className="text-sm opacity-60">Agrega una categoria para comenzar</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mt-4 bg-red-500">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 !mt-4 !p-4">
           {categories.map((category) => (
             <CategoryCard
               key={category.id}
@@ -436,7 +436,7 @@ function CategoryCard({ category, items, onDeleteCategory, onDeleteItem, formatP
             items.map((item) => (
               <div
                 key={item.id}
-                className="flex items-center gap-3 bg-[#3a3a3a] border border-[#404040] rounded-xl p-3 transition-all hover:border-[#F5C12A]/20"
+                className="flex items-center gap-3 bg-[#3a3a3a] border border-[#404040] rounded-xl !p-3 transition-all hover:border-[#F5C12A]/20"
               >
                 {item.image_url && !imageErrors[item.id] ? (
                   <img

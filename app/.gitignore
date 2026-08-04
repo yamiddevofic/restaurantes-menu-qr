@@ -1,6 +1,0 @@
-node_modules/
-data/
-qr-exports/
-.env
-*.log
-.DS_Store
