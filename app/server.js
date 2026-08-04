@@ -3,6 +3,7 @@ const path = require('path');
 const mongoose = require('mongoose');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 const dotenv = require('dotenv');
 const swaggerUi = require("swagger-ui-express");
 const swaggerSpec = require("./config/swagger");
@@ -16,6 +17,7 @@ const platoRoute = require('./routes/platoRoutes');
 const restauranteRoute = require('./routes/restauranteRoutes');
 const reporteRoute = require('./routes/reporteRoutes');
 const fidelizacionRoute = require('./routes/fidelizacionRoutes');
+const authRoute = require('./routes/authRoutes');
 
 dotenv.config();
 const URI = process.env.MONGO_URI || `mongodb+srv://yamiddev_db_user:${process.env.pass}@cluster-dev.loe0ymb.mongodb.net/qrta?appName=Cluster-Dev`;
@@ -32,6 +34,7 @@ db.addListener('open', () => {
 });
 
 const app = express();
+app.use(cors());
 app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -57,6 +60,7 @@ app.use('/api/platos', platoRoute);
 app.use('/api/restaurantes', restauranteRoute);
 app.use('/api/reportes', reporteRoute);
 app.use('/api/fidelizacion', fidelizacionRoute);
+app.use('/api/auth', authRoute);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

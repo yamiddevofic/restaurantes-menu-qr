@@ -14,7 +14,7 @@ const store = async (req, res) => {
             estado: 'ACTIVO'
         });
         await administrador.save();
-        res.status(201).json({ message: 'Administrador guardado correctamente' });
+        res.status(201).json({ message: 'Administrador guardado correctamente', _id: administrador._id });
     } catch (err) {
         if (err.code === 11000) {
             return res.status(409).json({ message: 'El email o usuario ya está registrado' });
