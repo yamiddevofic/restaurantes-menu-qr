@@ -1,95 +1,276 @@
-# 🍽️ Menu QR — Pedidos digitales para restaurantes
+# QRTA — Sistema de Gestión de Restaurantes
 
-Sistema de menú digital por código QR y pedidos en tiempo real, pensado para
-restaurantes de pueblo: **liviano, seguro, multi-restaurante (una sola instalación
-puede atender a varios negocios) y capaz de aguantar picos de gente sin caerse**.
+Sistema completo de gestión de restaurantes con menú digital por código QR. Backend API con Node.js, Express y MongoDB; frontend moderno con React y Tailwind CSS.
 
-## ¿Cómo funciona?
+## Características
 
-1. El dueño crea su restaurante, su menú y sus mesas desde el **Panel de Administración** (`/admin`).
-2. Por cada mesa se genera automáticamente un **código QR único**, listo para imprimir.
-3. El cliente escanea el QR con su celular → ve el menú → arma su pedido → lo envía. No necesita instalar nada ni crear cuenta.
-4. El pedido llega **al instante** al **Dashboard de Cocina** (`/kitchen`), organizado en columnas: Pendiente → Preparando → Listo.
-5. El cocinero va cambiando el estado del pedido con un clic, y el cliente ve el estado actualizarse en su celular en tiempo real.
+- **Gestión de Administradores**: CRUD completo con autenticación y control de estados
+- **Gestión de Empleados**: Administración del personal con roles (mesero/cocina)
+- **Gestión de Clientes**: Base de datos de clientes
+- **Sistema de Pedidos**: Gestión completa con estados (PENDIENTE → LISTO → ENTREGADO)
+- **Gestión de Platos**: Catálogo de platos con precios, ingredientes y disponibilidad
+- **Gestión de Restaurantes**: Multi-restaurante con menú propio
+- **Gestión de Mesas**: CRUD con generación automática de códigos QR
+- **Gestión de Categorías**: Organización del menú por categorías
+- **Menú Digital**: Endpoint para comensales que escanean el QR de la mesa
+- **Reportes**: Generación automática de reportes diarios
+- **Fidelización**: Programa de puntos y recompensas para clientes
+- **Autenticación**: Login para administradores y empleados con bcrypt
+- **CORS**: Configurado para desarrollo con frontend en puerto separado
 
-## Arquitectura (resumen técnico)
+## Tecnologías
 
-- **Backend:** Node.js + Express.
-- **Base de datos:** SQLite, usando el módulo `node:sqlite` que ya viene integrado en Node.js (desde la versión 22.5). **No requiere compilar nada ni instalar un motor de base de datos aparte** — es un solo archivo (`data/restaurant.db`) que se puede respaldar copiándolo. Se activa el modo `WAL` para que se pueda leer y escribir al mismo tiempo sin bloquear, lo cual ayuda en las horas pico.
-- **Tiempo real:** Socket.io — el pedido aparece en la cocina sin recargar la página, y el cliente ve el cambio de estado de su pedido sin recargar.
-- **Frontend:** HTML/CSS/JS puro (sin frameworks pesados ni paso de compilación), así que carga rápido incluso con internet lento — algo típico en zonas rurales.
-- **Multi-restaurante:** todo está aislado por `restaurant_id` en la base de datos. Una misma instalación del sistema puede alojar varios restaurantes distintos, cada uno con su propio menú, mesas, usuarios y pedidos, sin que se mezclen entre sí.
+### Backend (`app/`)
+- **Node.js** + **Express** — Framework web
+- **MongoDB** + **Mongoose** — Base de datos NoSQL
+- **bcrypt** — Encriptación de contraseñas
+- **qrcode** — Generación de códigos QR en base64
+- **cors** — Habilitación de CORS
+- **morgan** — Logger de solicitudes HTTP
+- **swagger-ui-express** — Documentación API
 
-## ¿Por qué es escalable para "a veces hay pico, a veces no"?
+### Frontend (`frontend/`)
+- **React 19** — Biblioteca de interfaces
+- **Vite** — Build tool
+- **Tailwind CSS 4** — Estilos utility-first
+- **React Router** — Enrutamiento SPA
 
-- No paga por servidor corriendo 24/7 con capacidad fija: SQLite + Node corre perfecto en un servidor pequeño y barato (1 vCPU / 512MB-1GB RAM alcanza para varios restaurantes de pueblo).
-- El modo WAL de SQLite permite muchas lecturas simultáneas (varios clientes viendo el menú a la vez) mientras se escriben pedidos, que es justamente el patrón de un fin de semana con full mesas.
-- Si en el futuro un restaurante crece mucho (varias sedes, cientos de mesas simultáneas), el código está organizado para poder migrar fácilmente de SQLite a PostgreSQL sin rediseñar el sistema (toda el acceso a datos está centralizado en `server/db.js` y en las rutas).
-- El límite de pedidos por mesa (anti-spam) es *por mesa*, no global — así que un pico real de clientes nunca se ve afectado, solo se frena el abuso (alguien mandando pedidos en bucle).
-
-## Seguridad incluida
-
-- Contraseñas de administrador/cocina con **hash bcrypt** (nunca se guardan en texto plano).
-- Sesiones con **JWT en cookie `httpOnly`** (no accesible desde JavaScript malicioso).
-- **Aislamiento multi-restaurante**: cada consulta a la base de datos está filtrada por el restaurante del usuario autenticado; un admin de un restaurante nunca puede ver ni tocar datos de otro.
-- El **precio de cada plato se calcula en el servidor**, nunca se confía en lo que mande el celular del cliente (evita que alguien manipule el precio desde el navegador).
-- **Rate limiting**: en login (anti fuerza bruta) y en creación de pedidos por mesa (anti spam).
-- Validación estricta de todos los datos de entrada (`express-validator`) y escape de HTML para evitar inyección de scripts (XSS).
-- Consultas SQL siempre parametrizadas (nunca se arma SQL concatenando texto), lo que previene inyección SQL.
-- Cabeceras de seguridad HTTP con `helmet`.
-- Cada mesa tiene un **token aleatorio impredecible** (no un simple número de mesa) en su URL de QR, y se puede regenerar en cualquier momento si un QR se pierde o se filtra.
-- No hay registro público de restaurantes: solo quien tiene acceso al servidor puede crear uno nuevo (`npm run setup`), evitando que cualquiera cree cuentas falsas.
-
-## Estructura del proyecto
+## Estructura del Proyecto
 
 ```
-restaurant-qr-menu/
-├── server/
-│   ├── index.js          # Servidor Express + Socket.io
-│   ├── db.js              # Conexión SQLite (node:sqlite)
-│   ├── schema.sql          # Esquema de la base de datos
-│   ├── sockets.js          # Lógica de tiempo real
-│   ├── middleware/
-│   │   └── auth.js         # Autenticación y control de acceso
-│   ├── routes/
-│   │   ├── auth.js          # Login/logout
-│   │   ├── public.js        # Menú público + creación de pedidos (QR)
-│   │   ├── kitchen.js       # Dashboard de cocina
-│   │   └── admin.js         # Gestión de menú, categorías y mesas/QR
-│   └── utils/
-│       └── auth.js         # Firma/verificación de JWT
-├── public/
-│   ├── menu/                # Página que ve el cliente al escanear el QR
-│   ├── kitchen/              # Dashboard de cocina
-│   └── admin/                # Panel de administración
-├── scripts/
-│   ├── setup-restaurant.js   # Crear un restaurante nuevo (CLI interactivo)
-│   ├── seed-demo.js          # Datos de ejemplo para probar rápido
-│   └── generate-qr.js        # Exportar todos los QR de un restaurante como PNG
-├── data/                     # Aquí vive el archivo restaurant.db (se crea solo)
-├── .env.example
-└── package.json
+restaurante-qr/
+├── app/                          # Backend API
+│   ├── controllers/              # Lógica de negocio
+│   │   ├── Admin.Controller.js
+│   │   ├── Auth.Controller.js    # Login admin/empleado
+│   │   ├── Cliente.Controller.js
+│   │   ├── Empleado.Controller.js
+│   │   ├── Fidelizacion.Controller.js
+│   │   ├── Pedido.Controller.js
+│   │   ├── Plato.Controller.js
+│   │   ├── Reporte.Controller.js
+│   │   └── Restaurante.Controller.js
+│   ├── models/                   # Schemas de Mongoose
+│   │   ├── Administrador.js
+│   │   ├── Cliente.js
+│   │   ├── Empleado.js
+│   │   ├── Fidelizacion.js
+│   │   ├── Pedido.js
+│   │   ├── Plato.js
+│   │   ├── Reporte.js
+│   │   └── Restaurante.js
+│   ├── routes/                   # Rutas de la API
+│   │   ├── adminRoutes.js
+│   │   ├── authRoutes.js         # POST /api/auth/login
+│   │   ├── clienteRoutes.js
+│   │   ├── empleadoRoutes.js
+│   │   ├── fidelizacionRoutes.js
+│   │   ├── pedidoRoutes.js
+│   │   ├── platoRoutes.js
+│   │   ├── reporteRoutes.js
+│   │   └── restauranteRoutes.js
+│   ├── config/
+│   │   └── swagger.js
+│   ├── .env
+│   ├── package.json
+│   ├── server.js
+│   └── README.md
+├── frontend/                     # Aplicación React
+│   ├── src/
+│   │   ├── App.jsx               # Landing page
+│   │   ├── main.jsx              # Router principal
+│   │   ├── index.css
+│   │   ├── pages/
+│   │   │   ├── Login.jsx         # Login admin/empleado
+│   │   │   └── Registro.jsx      # Registro multipaso
+│   │   └── assets/
+│   ├── index.html
+│   ├── package.json
+│   └── vite.config.js
+└── README.md
 ```
 
-Ver dentro de app **INSTALL.md** para la guía paso a paso de instalación y despliegue.
+## Instalación
 
-## Comandos disponibles
+### Requisitos previos
+- Node.js v18 o superior
+- MongoDB (local o Atlas)
+
+### Backend
 
 ```bash
 cd app
-npm install           # Instala dependencias
-npm run setup         # Crea un restaurante nuevo (te pregunta nombre, usuario, etc.)
-npm run seed-demo     # Crea un restaurante de ejemplo ya cargado con menú y 5 mesas
-npm start              # Inicia el servidor
-npm run gen-qr <slug>  # Exporta todos los QR de un restaurante como imágenes PNG
+npm install
 ```
 
-## Notas sobre `node:sqlite`
+Crear archivo `.env`:
+```env
+MONGO_URI=mongodb+srv://usuario:password@cluster.mongodb.net/database
+pass=tu_contraseña_mongodb
+PORT=3000
+```
 
-El proyecto usa el módulo SQLite integrado de Node.js (`node:sqlite`) en vez de una
-librería externa como `better-sqlite3`. Esto es intencional: evita que la instalación
-dependa de compilar código nativo en el servidor (algo que frecuentemente falla en
-hostings compartidos o económicos, justo los que suelen usar los negocios pequeños).
-Actualmente esta API es "experimental" en Node.js (verás una advertencia en consola
-al iniciar, es normal e inofensiva), pero es estable en la práctica y Node.js la
-mantiene activamente. Requiere **Node.js 22.5 o superior**.
+Iniciar servidor:
+```bash
+npm start
+```
+
+El servidor corre en `http://localhost:3000`
+
+### Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+El frontend corre en `http://localhost:5173`
+
+## API Endpoints
+
+### Autenticación
+
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| POST | `/api/auth/login` | Login admin/empleado |
+
+**POST /api/auth/login**
+```json
+{
+  "usuario": "juanperez",
+  "password": "password123",
+  "tipo": "admin"
+}
+```
+- `tipo`: `"admin"` o `"empleado"`
+- Retorna: datos del usuario + restaurante asociado (si es admin)
+
+### Administradores
+
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| GET | `/api/administradores` | Listar todos |
+| GET | `/api/administradores/:id` | Obtener uno |
+| POST | `/api/administradores` | Crear |
+| PUT | `/api/administradores/:id` | Actualizar |
+| PATCH | `/api/administradores/:id/estado` | Cambiar estado |
+| DELETE | `/api/administradores/:id` | Eliminar |
+
+### Restaurantes
+
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| GET | `/api/restaurantes` | Listar todos |
+| GET | `/api/restaurantes/:id` | Obtener uno |
+| POST | `/api/restaurantes` | Crear |
+| PUT | `/api/restaurantes/:id` | Actualizar |
+| DELETE | `/api/restaurantes/:id` | Eliminar |
+| GET | `/api/restaurantes/menu/:qr_code` | Menú por QR |
+
+### Mesas
+
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| GET | `/api/restaurantes/:id/mesas` | Listar mesas |
+| GET | `/api/restaurantes/:id/mesas/:mesaId` | Obtener mesa |
+| POST | `/api/restaurantes/:id/mesas` | Agregar mesa (genera QR) |
+| PUT | `/api/restaurantes/:id/mesas/:mesaId` | Editar mesa |
+| DELETE | `/api/restaurantes/:id/mesas/:mesaId` | Eliminar mesa |
+| DELETE | `/api/restaurantes/:id/mesas` | Eliminar todas |
+
+### Categorías
+
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| GET | `/api/restaurantes/:id/categorias` | Listar |
+| GET | `/api/restaurantes/:id/categorias/:categoriaId` | Obtener |
+| POST | `/api/restaurantes/:id/categorias` | Crear |
+| PUT | `/api/restaurantes/:id/categorias/:categoriaId` | Editar |
+| DELETE | `/api/restaurantes/:id/categorias/:categoriaId` | Eliminar |
+| DELETE | `/api/restaurantes/:id/categorias` | Eliminar todas |
+
+### Empleados
+
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| GET | `/api/empleados` | Listar todos |
+| GET | `/api/empleados/:id` | Obtener uno |
+| POST | `/api/empleados` | Crear |
+| PUT | `/api/empleados/:id` | Actualizar |
+| PATCH | `/api/empleados/:id/estado` | Cambiar estado |
+| DELETE | `/api/empleados/:id` | Eliminar |
+
+### Platos
+
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| GET | `/api/platos` | Listar todos |
+| GET | `/api/platos/:id` | Obtener uno |
+| POST | `/api/platos` | Crear |
+| PUT | `/api/platos/:id` | Actualizar |
+| DELETE | `/api/platos/:id` | Eliminar |
+
+### Clientes
+
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| GET | `/api/clientes` | Listar todos |
+| GET | `/api/clientes/:id` | Obtener uno |
+| POST | `/api/clientes` | Crear |
+| PUT | `/api/clientes/:id` | Actualizar |
+| DELETE | `/api/clientes/:id` | Eliminar |
+
+### Pedidos
+
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| GET | `/api/pedidos` | Listar todos |
+| GET | `/api/pedidos/:id` | Obtener uno |
+| POST | `/api/pedidos` | Crear |
+| PUT | `/api/pedidos/:id` | Actualizar |
+| PATCH | `/api/pedidos/:id/estado` | Cambiar estado |
+| DELETE | `/api/pedidos/:id` | Eliminar |
+
+**Estados de pedido:** `PENDIENTE`, `LISTO`, `ENTREGADO`, `CANCELADO`, `ELIMINADO`, `DEVOLUCION`
+
+### Fidelización
+
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| GET | `/api/fidelizacion` | Listar todos |
+| GET | `/api/fidelizacion/:id` | Obtener uno |
+| GET | `/api/fidelizacion/cliente/:clienteId/restaurante/:restauranteId` | Por cliente y restaurante |
+| POST | `/api/fidelizacion` | Crear |
+| PUT | `/api/fidelizacion/:id` | Actualizar |
+| DELETE | `/api/fidelizacion/:id` | Eliminar |
+
+### Reportes
+
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| GET | `/api/reportes/:restauranteId` | Listar por restaurante |
+| GET | `/api/reportes/:restauranteId/:fecha` | Obtener por fecha |
+| POST | `/api/reportes/generar/:restauranteId` | Generar reporte |
+| PUT | `/api/reportes/:id` | Actualizar |
+| DELETE | `/api/reportes/:id` | Eliminar |
+
+### Documentación Swagger
+
+Disponible en: `http://localhost:3000/api-docs`
+
+## Rutas del Frontend
+
+| Ruta | Descripción |
+|------|-------------|
+| `/` | Landing page |
+| `/registro` | Registro multipaso (admin + restaurante) |
+| `/login` | Login administrador/empleado |
+
+## Autor
+
+**yamiddevofic**
+
+## Licencia
+
+Este proyecto está bajo la Licencia ISC.
