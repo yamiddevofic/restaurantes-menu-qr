@@ -1,16 +1,16 @@
 import { useState } from 'react';
-
-const API_URL = 'http://localhost:3000/api';
+import { useNavigate } from 'react-router';
+import { useAuth, API_URL } from '../auth';
+import { loginTexts, errors } from '../data/auth';
 
 function Login() {
+  const navigate = useNavigate();
+  const { saveSession } = useAuth();
   const [tipo, setTipo] = useState('admin');
   const [usuario, setUsuario] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
-  const [userData, setUserData] = useState(null);
-  const [restaurante, setRestaurante] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -18,7 +18,7 @@ function Login() {
     setLoading(true);
 
     if (!usuario.trim() || !password.trim()) {
-      setError('Todos los campos son obligatorios');
+      setError(errors.required);
       setLoading(false);
       return;
     }
@@ -33,91 +33,25 @@ function Login() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message || 'Error al iniciar sesión');
+        throw new Error(data.message || errors.loginFailed);
       }
 
-      setUserData({ ...data.user, tipo: data.tipo });
-      setRestaurante(data.restaurante);
-      setSuccess(true);
+      saveSession({ token: data.token, user: data.user, restaurante: data.restaurante });
+      navigate('/dashboard');
     } catch (err) {
-      setError(err.message || 'Ocurrió un error. Intenta de nuevo.');
+      setError(err.message || errors.networkError);
     } finally {
       setLoading(false);
     }
   };
 
-  if (success && userData) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-orange-50 to-amber-50 px-4">
-        <div className="w-full max-w-md">
-          <div className="rounded-2xl bg-white p-8 text-center shadow-xl ring-1 ring-gray-100">
-            <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
-              <svg className="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <h2 className="mb-2 text-2xl font-bold text-gray-900">¡Bienvenido!</h2>
-            <p className="mb-6 text-gray-500">
-              Has iniciado sesión como <span className="font-semibold text-orange-600">{userData.tipo === 'admin' ? 'Administrador' : 'Empleado'}</span>
-            </p>
-            <div className="mb-6 rounded-xl bg-orange-50 p-4 text-left">
-              <p className="text-sm text-gray-600">
-                <span className="font-medium">Nombre:</span> {userData.nombre}
-              </p>
-              <p className="text-sm text-gray-600">
-                <span className="font-medium">Usuario:</span> {userData.usuario}
-              </p>
-              <p className="text-sm text-gray-600">
-                <span className="font-medium">Email:</span> {userData.email}
-              </p>
-              {userData.rol && (
-                <p className="text-sm text-gray-600">
-                  <span className="font-medium">Rol:</span> {userData.rol}
-                </p>
-              )}
-              {userData.plan && (
-                <p className="text-sm text-gray-600">
-                  <span className="font-medium">Plan:</span> {userData.plan === 'pro' ? 'Pro' : 'Gratis'}
-                </p>
-              )}
-              {restaurante && (
-                <>
-                  <div className="my-3 border-t border-orange-200"></div>
-                  <p className="text-sm font-semibold text-orange-700 mb-2">Restaurante</p>
-                  <p className="text-sm text-gray-600">
-                    <span className="font-medium">Nombre:</span> {restaurante.nombre}
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    <span className="font-medium">Ubicación:</span> {restaurante.ubicacion}
-                  </p>
-                </>
-              )}
-              {!restaurante && userData.tipo === 'admin' && (
-                <>
-                  <div className="my-3 border-t border-orange-200"></div>
-                  <p className="text-sm text-gray-500 italic">No tienes restaurante registrado</p>
-                </>
-              )}
-            </div>
-            <button
-              onClick={() => window.location.href = '/'}
-              className="w-full rounded-full bg-orange-600 px-6 py-3 font-semibold text-white shadow-lg shadow-orange-600/20 transition-all hover:bg-orange-700 hover:shadow-orange-600/30"
-            >
-              Ir al inicio
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50">
       <nav className="border-b border-gray-100 bg-white/80 backdrop-blur-md">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 sm:py-4">
           <a href="/" className="flex items-center gap-2">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-orange-600 font-bold text-lg text-white">Q</div>
-            <span className="text-2xl font-bold tracking-tight text-gray-900">QRTa</span>
+            <span className="text-xl font-bold tracking-tight text-gray-900 sm:text-2xl">QRTa</span>
           </a>
           <a href="/" className="text-sm font-medium text-gray-500 transition-colors hover:text-orange-600">
             Volver al inicio
@@ -125,36 +59,36 @@ function Login() {
         </div>
       </nav>
 
-      <div className="mx-auto max-w-xl px-4 py-12">
-        <div className="rounded-2xl bg-white p-8 shadow-xl ring-1 ring-gray-100">
-          <div className="mb-8 text-center">
+      <div className="mx-auto max-w-xl px-4 py-8 sm:py-12">
+        <div className="rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-100 sm:p-8">
+          <div className="mb-6 text-center sm:mb-8">
             <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-100 text-2xl">🔐</div>
-            <h1 className="text-2xl font-bold text-gray-900">Iniciar sesión</h1>
-            <p className="mt-2 text-gray-500">Selecciona tu tipo de cuenta</p>
+            <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">{loginTexts.title}</h1>
+            <p className="mt-2 text-sm text-gray-500 sm:text-base">{loginTexts.subtitle}</p>
           </div>
 
           <div className="mb-6 flex gap-2 rounded-xl bg-gray-100 p-1">
             <button
               type="button"
               onClick={() => setTipo('admin')}
-              className={`flex-1 rounded-lg py-2.5 text-sm font-semibold transition-all ${
+              className={`min-h-[44px] flex-1 rounded-lg py-3 text-sm font-semibold transition-all sm:py-2.5 ${
                 tipo === 'admin'
                   ? 'bg-white text-orange-600 shadow-sm'
                   : 'text-gray-500 hover:text-gray-700'
               }`}
             >
-              Administrador
+              {loginTexts.toggleAdmin}
             </button>
             <button
               type="button"
               onClick={() => setTipo('empleado')}
-              className={`flex-1 rounded-lg py-2.5 text-sm font-semibold transition-all ${
+              className={`min-h-[44px] flex-1 rounded-lg py-3 text-sm font-semibold transition-all sm:py-2.5 ${
                 tipo === 'empleado'
                   ? 'bg-white text-orange-600 shadow-sm'
                   : 'text-gray-500 hover:text-gray-700'
               }`}
             >
-              Empleado
+              {loginTexts.toggleEmpleado}
             </button>
           </div>
 
@@ -164,17 +98,17 @@ function Login() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
             <div>
               <label htmlFor="usuario" className="mb-1.5 block text-sm font-medium text-gray-700">
-                Usuario
+                {loginTexts.userLabel}
               </label>
               <input
                 type="text"
                 id="usuario"
                 value={usuario}
                 onChange={(e) => setUsuario(e.target.value)}
-                placeholder="Tu nombre de usuario"
+                placeholder={loginTexts.userPlaceholder}
                 className="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 transition-colors focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
                 required
               />
@@ -182,14 +116,14 @@ function Login() {
 
             <div>
               <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-gray-700">
-                Contraseña
+                {loginTexts.passLabel}
               </label>
               <input
                 type="password"
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Tu contraseña"
+                placeholder={loginTexts.passPlaceholder}
                 className="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 transition-colors focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
                 required
               />
@@ -206,18 +140,18 @@ function Login() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
                   </svg>
-                  Iniciando sesión...
+                  {loginTexts.loading}
                 </span>
               ) : (
-                'Iniciar sesión'
+                loginTexts.cta
               )}
             </button>
           </form>
 
           <p className="mt-6 text-center text-sm text-gray-500">
-            ¿No tienes cuenta?{' '}
+            {loginTexts.linkText}{' '}
             <a href="/registro" className="font-medium text-orange-600 hover:text-orange-700">
-              Regístrate aquí
+              {loginTexts.linkCta}
             </a>
           </p>
         </div>
