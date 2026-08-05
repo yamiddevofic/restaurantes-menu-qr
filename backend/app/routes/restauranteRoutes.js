@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const RestauranteController = require('../controllers/Restaurante.Controller');
+const authMiddleware = require('../middleware/authMiddleware');
 
 /**
  * @swagger
@@ -210,7 +211,7 @@ router.delete('/:id/mesas', RestauranteController.eliminarTodasMesas);
  *       200:
  *         description: Lista de categorías
  */
-router.get('/:id/categorias', RestauranteController.listarCategorias);
+router.get('/:id/categorias', authMiddleware, RestauranteController.listarCategorias);
 
 /**
  * @swagger
@@ -235,7 +236,7 @@ router.get('/:id/categorias', RestauranteController.listarCategorias);
  *       404:
  *         description: Categoría no encontrada
  */
-router.get('/:id/categorias/:categoriaId', RestauranteController.mostrarCategoria);
+router.get('/:id/categorias/:categoriaId', authMiddleware, RestauranteController.mostrarCategoria);
 
 /**
  * @swagger
@@ -266,7 +267,7 @@ router.get('/:id/categorias/:categoriaId', RestauranteController.mostrarCategori
  *       201:
  *         description: Categoría agregada
  */
-router.post('/:id/categorias', RestauranteController.agregarCategoria);
+router.post('/:id/categorias', authMiddleware, RestauranteController.agregarCategoria);
 
 /**
  * @swagger
@@ -300,7 +301,7 @@ router.post('/:id/categorias', RestauranteController.agregarCategoria);
  *       200:
  *         description: Categoría editada
  */
-router.put('/:id/categorias/:categoriaId', RestauranteController.editarCategoria);
+router.put('/:id/categorias/:categoriaId', authMiddleware, RestauranteController.editarCategoria);
 
 /**
  * @swagger
@@ -323,7 +324,7 @@ router.put('/:id/categorias/:categoriaId', RestauranteController.editarCategoria
  *       200:
  *         description: Categoría eliminada
  */
-router.delete('/:id/categorias/:categoriaId', RestauranteController.eliminarCategoria);
+router.delete('/:id/categorias/:categoriaId', authMiddleware, RestauranteController.eliminarCategoria);
 
 /**
  * @swagger
@@ -341,7 +342,7 @@ router.delete('/:id/categorias/:categoriaId', RestauranteController.eliminarCate
  *       200:
  *         description: Todas las categorías eliminadas
  */
-router.delete('/:id/categorias', RestauranteController.eliminarTodasCategorias);
+router.delete('/:id/categorias', authMiddleware, RestauranteController.eliminarTodasCategorias);
 
 // === Rutas generales de restaurante ===
 

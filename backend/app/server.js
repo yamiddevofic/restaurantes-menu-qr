@@ -18,8 +18,9 @@ const restauranteRoute = require('./routes/restauranteRoutes');
 const reporteRoute = require('./routes/reporteRoutes');
 const fidelizacionRoute = require('./routes/fidelizacionRoutes');
 const authRoute = require('./routes/authRoutes');
+const statsRoute = require('./routes/statsRoutes');
 
-dotenv.config();
+dotenv.config({ path: path.join(__dirname, '.env') });
 const URI = process.env.MONGO_URI || `mongodb+srv://yamiddev_db_user:${process.env.pass}@cluster-dev.loe0ymb.mongodb.net/qrta?appName=Cluster-Dev`;
 
 mongoose.connect(URI);
@@ -61,6 +62,7 @@ app.use('/api/restaurantes', restauranteRoute);
 app.use('/api/reportes', reporteRoute);
 app.use('/api/fidelizacion', fidelizacionRoute);
 app.use('/api/auth', authRoute);
+app.use('/api/stats', statsRoute);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

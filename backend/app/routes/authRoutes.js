@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const AuthController = require('../controllers/Auth.Controller');
+const authMiddleware = require('../middleware/authMiddleware');
 
 /**
  * @swagger
@@ -42,5 +43,23 @@ const AuthController = require('../controllers/Auth.Controller');
  *         description: Error del servidor
  */
 router.post('/login', AuthController.login);
+
+/**
+ * @swagger
+ * /api/auth/me:
+ *   get:
+ *     summary: Obtiene el usuario autenticado
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Sesión actual
+ *       401:
+ *         description: No autorizado
+ *       403:
+ *         description: Cuenta inactiva
+ */
+router.get('/me', authMiddleware, AuthController.me);
 
 module.exports = router;

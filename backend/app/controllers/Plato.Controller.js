@@ -19,10 +19,12 @@ const store = async (req, res) => {
     }
 };
 
-// Listar platos (filtrando por restaurante, que es como se va a usar en la práctica)
+// Listar platos (filtrando por restaurante y/o categoría)
 const index = async (req, res) => {
     try {
-        const filtro = req.query.restaurante_id ? { restaurante_id: req.query.restaurante_id } : {};
+        const filtro = { estado: { $ne: 'ELIMINADO' } };
+        if (req.query.restaurante_id) filtro.restaurante_id = req.query.restaurante_id;
+        if (req.query.categoria_id) filtro.categoria_id = req.query.categoria_id;
         const platos = await Plato.find(filtro);
         res.json(platos);
     } catch (err) {

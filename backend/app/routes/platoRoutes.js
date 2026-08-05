@@ -1,6 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const PlatoController = require('../controllers/Plato.Controller');
+const authMiddleware = require('../middleware/authMiddleware');
+
+// Todos los manejos de platos son operaciones de administración (el menú
+// público se sirve a través de /restaurantes/menu/:qr_code)
+router.use(authMiddleware);
 
 /**
  * @swagger
