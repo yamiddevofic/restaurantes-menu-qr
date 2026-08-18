@@ -97,11 +97,15 @@ Todos los canales deben estar disponibles:
 ## Estado actual del proyecto
 
 **Funcional, falta pulir:**
-- Backend: Express + MongoDB Atlas (funcional)
-- Frontend: React + Vite + Tailwind CSS (funcional)
-- Login/Registro: Funcional
-- Landing page: Funcional, con copies mejorados
-- Responsive: Mejorado, con menú hamburguesa
+- Backend: Express 5 + MongoDB Atlas con autenticación JWT (funcional)
+- Frontend: React 19 + Vite 8 + Tailwind CSS 4 (funcional)
+- Login/Registro: Funcional, con sesión JWT restaurada vía `/api/auth/me`
+- Landing page: Funcional, data-driven (datos en `src/data/`)
+- Panel de administración: Dashboard con estadísticas, módulo de platos y perfil
+- Suscripciones: Plan Free/Pro con vencimiento, renovación e historial
+- Eliminación de cuentas: Diferida (BAJA + purga a los 30 días)
+- Responsive: Mejorado, con menú hamburguesa y drawer lateral
+- Modo oscuro: Implementado por clase `.dark` con persistencia en localStorage
 - Datos: Separados en archivos `.js` para mantenibilidad
 
 ---
@@ -118,33 +122,37 @@ Todos los canales deben estar disponibles:
 
 ```
 restaurante-qr/
-├── app/                    # Backend (Express + MongoDB)
-│   ├── controllers/
-│   ├── models/
-│   ├── routes/
-│   ├── config/
-│   ├── server.js
-│   └── .env
-├── frontend/               # Frontend (React + Vite + Tailwind)
+├── backend/                  # Backend (Express + MongoDB)
+│   ├── app/
+│   │   ├── controllers/      # Lógica de negocio
+│   │   ├── models/           # Schemas de Mongoose
+│   │   ├── routes/           # Rutas de la API
+│   │   ├── middleware/       # JWT (authMiddleware) y multer (uploads)
+│   │   ├── jobs/             # Purga de historial de eliminación (6 h)
+│   │   ├── config/           # Swagger
+│   │   ├── public/uploads/   # Imágenes servidas estáticamente
+│   │   ├── .env
+│   │   └── server.js
+├── frontend/                 # Frontend (React + Vite + Tailwind)
 │   ├── src/
-│   │   ├── data/           # Datos separados de UI
-│   │   │   ├── nav.js
-│   │   │   ├── hero.js
-│   │   │   ├── features.js
-│   │   │   ├── steps.js
-│   │   │   ├── footer.js
-│   │   │   └── auth.js
-│   │   ├── pages/
-│   │   │   ├── App.jsx     # Landing page
-│   │   │   ├── Login.jsx
-│   │   │   └── Registro.jsx
-│   │   ├── main.jsx
+│   │   ├── data/             # Datos separados de UI (nav, hero, features,
+│   │   │                     #   steps, footer, auth, faq, legal, precios,
+│   │   │                     #   testimonios)
+│   │   ├── pages/            # Landing, Login, Registro, Dashboard, Platos,
+│   │   │                     #   Perfil, Suscripcion, Modulo, Privacidad,
+│   │   │                     #   Terminos
+│   │   ├── components/       # Avatar, Modal, SideDrawer, HeaderMenu, ui/, ...
+│   │   ├── utils/            # formatCOP, useTheme
+│   │   ├── auth.jsx          # Contexto de sesión (JWT + localStorage)
+│   │   ├── theme.css         # Design system Tailwind 4
+│   │   ├── App.jsx           # Landing page
+│   │   ├── main.jsx          # Router principal
 │   │   └── index.css
 │   └── public/
-│       └── media/
-│           └── hero.mp4
-├── start.ps1               # Script de inicio
-├── start.bat               # Wrapper Windows
+│       └── media/            # hero.mp4, chef-hero.png
+├── docs/                     # Documentación (PRODUCT, BUSINESS, API, ...)
+├── start.ps1                 # Script de inicio
+├── start.bat                 # Wrapper Windows
 └── README.md
 ```
 
@@ -154,31 +162,43 @@ restaurante-qr/
 
 ### Backend (API REST)
 - CRUD de administradores, restaurantes, platos, mesas, empleados, clientes
-- Sistema de autenticación (login admin/empleado)
+- Autenticación JWT (login admin/empleado, token Bearer de 8 horas)
+- Perfil de usuario: actualización, avatar (multipart) y eliminación diferida de cuenta
+- Suscripciones: actualizar/renovar/cancelar plan + historial de auditoría
 - Generación de códigos QR por mesa
 - Sistema de pedidos con estados (pendiente → listo → entregado)
+- Fidelización con actualización automática al entregar pedidos
 - Reportes automáticos diarios
-- Sistema de fidelización (puntos y recompensas)
+- Estadísticas del panel (pedidos/ventas del día, mesas, clientes)
+- Job de purga: eliminación definitiva de historial vencido (30 días)
 - Documentación Swagger en `/api-docs`
 
 ### Frontend
-- Landing page marketing
+- Landing page marketing (data-driven)
 - Registro multi-paso (admin + restaurante)
-- Login con roles (admin/empleado)
-- Panel de administración (pendiente)
+- Login con roles (admin/empleado) y sesión persistente
+- Panel de administración: dashboard con stats, módulo de platos, perfil y suscripción
+- Módulos pendientes (mesas, pedidos, empleados, fidelización, reportes) con página "próximamente"
+- Política de privacidad y términos
 
 ---
 
 ## Preguntas pendientes
 
-- [ ] Definir identidad de marca (colores, logo, tipografía)
-- [ ] Crear sección de testimonios
-- [ ] Crear sección de FAQ
-- [ ] Crear página de precios
-- [ ] Crear panel de administración
-- [ ] Integrar frontend con backend (API calls)
+- [x] Definir identidad de marca (colores, logo, tipografía)
+- [x] Crear sección de testimonios
+- [x] Crear sección de FAQ
+- [x] Crear página de precios
+- [x] Crear panel de administración
+- [x] Integrar frontend con backend (API calls)
+- [x] Autenticación con JWT y sesión persistente
+- [x] Módulo de platos (categorías + platos + imágenes)
+- [x] Perfil de usuario (avatar, restaurantes, configuración)
+- [x] Suscripción Free/Pro con historial
+- [x] Eliminación diferida de cuentas (BAJA + purga 30 días)
+- [x] Crear política de privacidad y términos
 - [ ] Configurar dominio y hosting
-- [ ] Crear política de privacidad y términos
+- [ ] Módulos restantes del panel (mesas, pedidos, empleados, fidelización, reportes)
 
 ---
 

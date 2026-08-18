@@ -10,6 +10,14 @@ Backend API para la gestión completa de restaurantes, desarrollado con Node.js,
 
 ## Autenticación
 
+Todas las rutas protegidas requieren el header:
+
+```
+Authorization: Bearer <token>
+```
+
+El token se obtiene en `POST /api/auth/login` y es válido por **8 horas**. Las respuestas de login y de `GET /api/auth/me` siempre retornan el token/sesión actual sin la contraseña.
+
 ### POST /api/auth/login
 Inicia sesión como administrador o empleado.
 
@@ -33,12 +41,14 @@ curl -X POST http://localhost:3000/api/auth/login \
 {
   "message": "Inicio de sesión exitoso",
   "tipo": "admin",
+  "token": ":jwt_token",
   "user": {
     "_id": ":id",
     "nombre": "Juan Pérez",
     "email": "juan@example.com",
     "usuario": "juanperez",
     "plan": "pro",
+    "plan_vencimiento": "2026-09-15T10:30:00.000Z",
     "fecha_registro": "2024-01-15T10:30:00.000Z",
     "estado": "ACTIVO"
   },
@@ -46,16 +56,90 @@ curl -X POST http://localhost:3000/api/auth/login \
     "_id": ":restauranteId",
     "nombre": "Restaurante La Cocina",
     "ubicacion": "Calle 123 #45-67"
-  }
+  },
+  "restaurantes": [":lista_completa"]
 }
 ```
 
-**Nota:** El campo `restaurante` solo se retorna si el tipo es `"admin"` y tiene un restaurante asociado.
+**Notas:**
+- El campo `restaurante` es el primero de la lista; `restaurantes` contiene todos los del admin (vacío para empleados).
+- **Errores:**
+  - `400`: Datos faltantes o tipo inválido
+  - `401`: Credenciales incorrectas
+  - `403`: Cuenta inactiva
 
-**Errores:**
-- `400`: Datos faltantes o tipo inválido
-- `401`: Credenciales incorrectas
-- `403`: Cuenta inactiva
+### GET /api/auth/me
+Obtiene la sesión actual (restaura sesión al recargar la página).
+
+```bash
+curl http://localhost:3000/api/auth/me \
+  -H "Authorization: Bearer :token"
+```
+
+Retorna el mismo formato que el login (sin token nuevo). `401` si el token falta/expiró, `403` si la cuenta está inactiva.
+
+### PUT /api/auth/perfil
+Actualiza el perfil del usuario autenticado.
+
+```bash
+curl -X PUT http://localhost:3000/api/auth/perfil \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer :token" \
+  -d '{
+    "nombre": "Juan Pérez Actualizado",
+    "email": "juan.nuevo@example.com",
+    "telefono": "+573001234567",
+    "bio": "Dueño del restaurante"
+  }'
+```
+
+- **Admin:** acepta `nombre`, `email` (validado y único), `telefono`, `bio`
+- **Empleado:** acepta `nombre`, `bio`, `contacto.correo`, `contacto.celular`
+
+### PUT /api/auth/avatar
+Sube la foto de perfil del usuario autenticado (multipart, campo `avatar`, máx. 5 MB).
+
+```bash
+curl -X PUT http://localhost:3000/api/auth/avatar \
+  -H "Authorization: Bearer :token" \
+  -F "avatar=@foto.jpg"
+```
+
+La imagen se guarda en `public/uploads/perfiles/` y se sirve de forma estática. Retorna el usuario actualizado con `avatar: "/uploads/perfiles/:archivo"`.
+
+### DELETE /api/auth/cuenta
+Elimina la cuenta del usuario autenticado (confirmación con contraseña).
+
+```bash
+curl -X DELETE http://localhost:3000/api/auth/cuenta \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer :token" \
+  -d '{
+    "password": "password123"
+  }'
+```
+
+**Nota:** la cuenta **no se borra de inmediato**: pasa a estado `BAJA` (pierde acceso al instante), se guarda un snapshot en el historial y se purga definitivamente a los **30 días** por el job automático. Si es admin, sus restaurantes y empleados también se marcan para purga.
+
+### PUT /api/auth/suscripcion
+Gestiona la suscripción del administrador autenticado.
+
+```bash
+curl -X PUT http://localhost:3000/api/auth/suscripcion \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer :token" \
+  -d '{ "accion": "actualizar" }'
+```
+
+**Acciones:**
+- `actualizar`: pasa del plan free al pro (30 días desde hoy)
+- `renovar`: extiende 30 días (suma al vencimiento actual si no venció)
+- `cancelar`: vuelve al plan gratis
+
+Cada cambio queda registrado en el historial de suscripción (auditoría).
+
+### GET /api/auth/suscripcion
+Obtiene el historial de cambios de suscripción del admin (últimos 50, ordenados por fecha desc). Solo administradores.
 
 ---
 
@@ -239,6 +323,27 @@ curl http://localhost:3000/api/restaurantes/menu/:qr_code
     }
   ]
 }
+```
+
+### GET /api/restaurantes/mios
+Lista los restaurantes del administrador autenticado.
+
+```bash
+curl http://localhost:3000/api/restaurantes/mios \
+  -H "Authorization: Bearer :token"
+```
+
+### POST /api/restaurantes/mios
+Crea un restaurante para el administrador autenticado (el `adm_id` se toma del token, no del body).
+
+```bash
+curl -X POST http://localhost:3000/api/restaurantes/mios \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer :token" \
+  -d '{
+    "nombre": "Restaurante La Cocina",
+    "ubicacion": "Calle 123 #45-67"
+  }'
 ```
 
 ---
@@ -464,11 +569,12 @@ curl http://localhost:3000/api/platos/:id
 ```
 
 ### POST /api/platos
-Crea un nuevo plato.
+Crea un nuevo plato. **Requiere Bearer token.** Acepta `application/json` o `multipart/form-data` (para incluir la imagen del plato en el campo `imagen`, máx. 5 MB).
 
 ```bash
 curl -X POST http://localhost:3000/api/platos \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer :token" \
   -d '{
     "nombre": "Pizza Margarita",
     "descripcion": "Pizza con tomate, mozzarella y albahaca",
@@ -501,25 +607,44 @@ curl -X POST http://localhost:3000/api/platos \
 - `descripcion` (String): Descripción del plato
 - `ingredientes` (Array): Array de objetos con `nombre`, `cantidad`, `medida`
 - `estado` (String): `'DISPONIBLE'` o `'AGOTADO'` (default: `'DISPONIBLE'`)
+- `imagen` (File, multipart): Foto del plato
 
 ### PUT /api/platos/:id
-Actualiza un plato.
+Actualiza un plato. **Requiere Bearer token.** Acepta `application/json` o `multipart/form-data`.
 
 ```bash
 curl -X PUT http://localhost:3000/api/platos/:id \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer :token" \
   -d '{
     "estado": "AGOTADO",
     "descripcion": "Descripción actualizada"
   }'
 ```
 
-### DELETE /api/platos/:id
-Elimina un plato.
+### PATCH /api/platos/:id/estado
+Cambia el estado de un plato. **Requiere Bearer token.**
 
 ```bash
-curl -X DELETE http://localhost:3000/api/platos/:id
+curl -X PATCH http://localhost:3000/api/platos/:id/estado \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer :token" \
+  -d '{
+    "estado": "AGOTADO"
+  }'
 ```
+
+**Estados disponibles:** `'DISPONIBLE'`, `'AGOTADO'`
+
+### DELETE /api/platos/:id
+Elimina un plato. **Requiere Bearer token.**
+
+```bash
+curl -X DELETE http://localhost:3000/api/platos/:id \
+  -H "Authorization: Bearer :token"
+```
+
+> **Nota:** todo el CRUD de platos está protegido; el menú público se sirve únicamente por `GET /api/restaurantes/menu/:qr_code`. `GET /api/platos` acepta `?restaurante_id=:id` para filtrar.
 
 ---
 
@@ -576,6 +701,19 @@ curl -X PUT http://localhost:3000/api/clientes/:id \
     "estado": "INACTIVO"
   }'
 ```
+
+### PATCH /api/clientes/:id/estado
+Cambia el estado de un cliente.
+
+```bash
+curl -X PATCH http://localhost:3000/api/clientes/:id/estado \
+  -H "Content-Type: application/json" \
+  -d '{
+    "estado": "INACTIVO"
+  }'
+```
+
+**Estados disponibles:** `'ACTIVO'`, `'INACTIVO'`
 
 ### DELETE /api/clientes/:id
 Elimina un cliente.
@@ -747,12 +885,25 @@ curl -X PUT http://localhost:3000/api/fidelizacion/:id \
   }'
 ```
 
+### PATCH /api/fidelizacion/:id/estado
+Cambia el estado de una fidelización.
+
+```bash
+curl -X PATCH http://localhost:3000/api/fidelizacion/:id/estado \
+  -H "Content-Type: application/json" \
+  -d '{
+    "estado": "INACTIVO"
+  }'
+```
+
 ### DELETE /api/fidelizacion/:id
 Elimina un programa de fidelización.
 
 ```bash
 curl -X DELETE http://localhost:3000/api/fidelizacion/:id
 ```
+
+> **Nota:** existe un índice único por `restaurante_id` + `cliente_id`; cada cliente tiene un solo programa por restaurante.
 
 ---
 
@@ -812,9 +963,41 @@ curl -X DELETE http://localhost:3000/api/reportes/:id
 
 ---
 
+## Estadísticas
+
+### GET /api/stats
+Obtiene estadísticas del restaurante del usuario autenticado (admin o empleado). **Requiere Bearer token.**
+
+```bash
+curl http://localhost:3000/api/stats \
+  -H "Authorization: Bearer :token"
+```
+
+**Respuesta:**
+```json
+{
+  "mesas": 12,
+  "pedidosHoy": 8,
+  "clientes": 25,
+  "ventasHoy": 185000
+}
+```
+
+- `mesas`: total de mesas del restaurante
+- `pedidosHoy`: pedidos creados hoy
+- `clientes`: clientes fidelizados únicos (ACTIVO) del restaurante
+- `ventasHoy`: suma de `precio × cantidad` de los pedidos ENTREGADO de hoy
+
+**Errores:** `404` si el usuario no tiene restaurante asociado.
+
+---
+
 ## Seguridad
 
-- Las contraseñas se encriptan utilizando bcrypt con un factor de costo de 10
-- Los endpoints excluyen campos sensibles (como contraseñas) en las respuestas
-- CORS habilitado para desarrollo
-- Se recomienda implementar JWT y middleware de autorización para producción
+- Autenticación por **JWT** (`Authorization: Bearer <token>`), token con expiración de 8 horas
+- Rutas protegidas: platos (CRUD completo), categorías, `restaurantes/mios`, `PUT/DELETE /restaurantes/:id`, perfil, avatar, cuenta, suscripción y stats
+- Las contraseñas se encriptan con **bcrypt** (costo 10)
+- Los endpoints excluyen campos sensibles (contraseñas) en las respuestas
+- Subida de imágenes con multer: solo archivos `image/*`, máx. 5 MB
+- Eliminación de cuentas diferida: pasa a `BAJA` y se purga definitivamente a los 30 días (job automático)
+- **Pendiente para producción:** forzar `JWT_SECRET` seguro en `.env`, HTTPS, rate limiting y validación de entrada con un esquema (Joi/Zod)

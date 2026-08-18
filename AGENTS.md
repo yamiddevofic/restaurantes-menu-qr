@@ -88,12 +88,12 @@ Si la respuesta es no, replantea la solución.
 
 # Lee también
 
-PRODUCT.md
+Estos archivos viven en `docs/`:
 
-BUSINESS.md
-
-USERS.md
-
-ARCHITECTURE.md
-
-CODING_STANDARDS.md
+- `CONTEXT.md` — Contexto, estado actual y arquitectura
+- `PRODUCT.md` — Propuesta de valor
+- `BUSINESS.md` — Modelo de negocio
+- `USERS.md` — Personas del producto
+- `DECISIONS.md` — Decisiones de arquitectura (ADRs)
+- `API.md` — Documentación de la API
+- `UX.md`, `DESIGN.md`, `DESIGN_SYSTEM.md`, `BRAND.md` — Diseño y marca
