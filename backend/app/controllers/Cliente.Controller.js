@@ -13,7 +13,7 @@ const store = async (req, res) => {
         await cliente.save();
         res.status(201).json({ message: 'Cliente guardado correctamente' })
     } catch (err) {
-        res.status(500).json({ message: 'Error al guardar el cliente', error: err.message })
+        res.status(500).json({ message: 'Error al guardar el cliente' })
     }
 }
 
@@ -36,7 +36,7 @@ const show = async (req, res) => {
         if (!cliente) return res.status(404).json({ message: 'Cliente no encontrado' });
         res.json(cliente);
     } catch (err) {
-        res.status(500).json({ message: 'Error al consultar el cliente', error: err.message });
+        res.status(500).json({ message: 'Error al consultar el cliente' });
     }
 }
 
@@ -55,7 +55,7 @@ const update = async (req, res) => {
         if (!cliente) return res.status(404).json({ message: 'Cliente no encontrado' });
         res.json(cliente);
     } catch (err) {
-        res.status(500).json({ message: 'Error al modificar el cliente', error: err.message });
+        res.status(500).json({ message: 'Error al modificar el cliente' });
     }
 }
 
@@ -70,7 +70,7 @@ const cambiarEstado = async (req, res) => {
         if (!cliente) return res.status(404).json({ message: 'Cliente no encontrado' });
         res.json(cliente);
     } catch (err) {
-        res.status(500).json({ message: 'Error al cambiar el estado del cliente', error: err.message });
+        res.status(500).json({ message: 'Error al cambiar el estado del cliente' });
     }
 }
 
@@ -81,7 +81,7 @@ const destroy = async (req, res) => {
         if (!cliente) return res.status(404).json({ message: 'Cliente no encontrado' });
         res.json({ message: 'Cliente eliminado correctamente' });
     } catch (err) {
-        res.status(500).json({ message: 'Error al eliminar el cliente', error: err.message });
+        res.status(500).json({ message: 'Error al eliminar el cliente' });
     }
 }
 

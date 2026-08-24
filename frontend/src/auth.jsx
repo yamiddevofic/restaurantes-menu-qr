@@ -7,6 +7,7 @@ export const API_URL = `${window.location.protocol}//${window.location.hostname}
 const TOKEN_KEY = 'qrta_token'
 const USER_KEY = 'qrta_user'
 const RESTAURANTE_KEY = 'qrta_restaurante'
+const RESTAURANTES_KEY = 'qrta_restaurantes'
 
 const AuthContext = createContext(null)
 
@@ -16,6 +17,13 @@ export function AuthProvider({ children }) {
       return JSON.parse(localStorage.getItem(USER_KEY))
     } catch {
       return null
+    }
+  })
+  const [restaurantes, setRestaurantes] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem(RESTAURANTES_KEY))
+    } catch {
+      return []
     }
   })
   const [restaurante, setRestaurante] = useState(() => {
@@ -28,22 +36,33 @@ export function AuthProvider({ children }) {
   const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY))
   const [loading, setLoading] = useState(true)
 
-  const saveSession = useCallback(({ token: t, user: u, restaurante: r }) => {
-    if (t) localStorage.setItem(TOKEN_KEY, t)
-    if (u) localStorage.setItem(USER_KEY, JSON.stringify(u))
-    if (r) localStorage.setItem(RESTAURANTE_KEY, JSON.stringify(r))
-    setToken(t)
-    setUser(u)
-    setRestaurante(r)
+  const saveSession = useCallback(({ token: t, user: u, restaurante: r, restaurantes: rs }) => {
+    if (t !== undefined) localStorage.setItem(TOKEN_KEY, t)
+    if (u !== undefined) localStorage.setItem(USER_KEY, JSON.stringify(u))
+    if (r !== undefined) localStorage.setItem(RESTAURANTE_KEY, JSON.stringify(r))
+    if (rs !== undefined) localStorage.setItem(RESTAURANTES_KEY, JSON.stringify(rs))
+    if (u) {
+      if (u.avatar) {
+        try { localStorage.setItem('qrta_avatar', u.avatar) } catch { /* sin espacio */ }
+      }
+    }
+    if (t !== undefined) setToken(t)
+    if (u !== undefined) setUser(u)
+    if (r !== undefined) setRestaurante(r)
+    if (rs !== undefined) setRestaurantes(rs)
+    else if (r !== undefined) setRestaurantes([r])
   }, [])
 
   const logout = useCallback(() => {
     localStorage.removeItem(TOKEN_KEY)
     localStorage.removeItem(USER_KEY)
     localStorage.removeItem(RESTAURANTE_KEY)
+    localStorage.removeItem(RESTAURANTES_KEY)
+    localStorage.removeItem('qrta_avatar')
     setToken(null)
     setUser(null)
     setRestaurante(null)
+    setRestaurantes([])
   }, [])
 
   useEffect(() => {
@@ -57,7 +76,7 @@ export function AuthProvider({ children }) {
             if (!res.ok) throw new Error('Sesión inválida')
             return res.json()
           })
-          .then((data) => saveSession({ token: storedToken, user: data.user, restaurante: data.restaurante }))
+          .then((data) => saveSession({ token: storedToken, user: data.user, restaurante: data.restaurante, restaurantes: data.restaurantes }))
           .catch(() => logout())
       : Promise.resolve()
 
@@ -65,7 +84,7 @@ export function AuthProvider({ children }) {
   }, [saveSession, logout])
 
   return (
-    <AuthContext.Provider value={{ user, restaurante, token, loading, saveSession, logout }}>
+    <AuthContext.Provider value={{ user, restaurante, restaurantes, token, loading, saveSession, logout }}>
       {children}
     </AuthContext.Provider>
   )

@@ -2,6 +2,10 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useAuth, API_URL } from '../auth';
 import { loginTexts, errors } from '../data/auth';
+import { Field, Input } from '../components/ui/Field';
+import { Button } from '../components/ui/Button';
+import { Spinner } from '../components/ui/Spinner';
+import { FiLock } from 'react-icons/fi';
 
 function Login() {
   const navigate = useNavigate();
@@ -36,7 +40,7 @@ function Login() {
         throw new Error(data.message || errors.loginFailed);
       }
 
-      saveSession({ token: data.token, user: data.user, restaurante: data.restaurante });
+      saveSession({ token: data.token, user: data.user, restaurante: data.restaurante, restaurantes: data.restaurantes });
       navigate('/dashboard');
     } catch (err) {
       setError(err.message || errors.networkError);
@@ -46,35 +50,40 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50">
-      <nav className="border-b border-gray-100 bg-white/80 backdrop-blur-md">
+    <div className="flex min-h-screen flex-col bg-gradient-to-br from-brand-50 to-accent-50 dark:from-gray-900 dark:to-gray-950">
+      <nav className="border-b border-gray-100 bg-white/80 backdrop-blur-md dark:border-gray-800 dark:bg-gray-900/80">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 sm:py-4">
-          <a href="/" className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-orange-600 font-bold text-lg text-white">Q</div>
-            <span className="text-xl font-bold tracking-tight text-gray-900 sm:text-2xl">QRTa</span>
+          <a href="/" className="flex items-center gap-2" title="Ir al inicio de QRTa">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600 font-bold text-lg text-white">Q</div>
+            <span className="text-xl font-bold tracking-tight text-gray-900 dark:text-gray-100 sm:text-2xl">QRTa</span>
           </a>
-          <a href="/" className="text-sm font-medium text-gray-500 transition-colors hover:text-orange-600">
-            Volver al inicio
-          </a>
+          <div className="flex items-center gap-3">
+            <a href="/" className="text-sm font-medium text-gray-500 transition-colors hover:text-brand-600 dark:text-gray-400" title="Volver a la página principal">
+              Volver al inicio
+            </a>
+          </div>
         </div>
       </nav>
 
-      <div className="mx-auto max-w-xl px-4 py-8 sm:py-12">
-        <div className="rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-100 sm:p-8">
+      <div className="flex flex-1 items-center justify-center px-4 py-8 sm:py-12">
+        <div className="w-full max-w-xl rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-100 dark:bg-gray-900 dark:ring-gray-800 sm:p-8">
           <div className="mb-6 text-center sm:mb-8">
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-100 text-2xl">🔐</div>
-            <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">{loginTexts.title}</h1>
-            <p className="mt-2 text-sm text-gray-500 sm:text-base">{loginTexts.subtitle}</p>
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-100 text-brand-600 dark:bg-brand-500/20 dark:text-brand-400">
+              <FiLock className="h-7 w-7" aria-hidden="true" />
+            </div>
+            <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100 sm:text-2xl">{loginTexts.title}</h1>
+            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400 sm:text-base">{loginTexts.subtitle}</p>
           </div>
 
-          <div className="mb-6 flex gap-2 rounded-xl bg-gray-100 p-1">
+          <div className="mb-6 flex gap-2 rounded-xl bg-gray-100 p-1 dark:bg-gray-800">
             <button
               type="button"
               onClick={() => setTipo('admin')}
-              className={`min-h-[44px] flex-1 rounded-lg py-3 text-sm font-semibold transition-all sm:py-2.5 ${
+              title="Iniciar sesión como administrador"
+              className={`min-h-11 flex-1 rounded-lg py-3 text-sm font-semibold transition-all sm:py-2.5 ${
                 tipo === 'admin'
-                  ? 'bg-white text-orange-600 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-700'
+                  ? 'bg-white text-brand-600 shadow-sm dark:bg-gray-700 dark:text-brand-400'
+                  : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
               }`}
             >
               {loginTexts.toggleAdmin}
@@ -82,10 +91,11 @@ function Login() {
             <button
               type="button"
               onClick={() => setTipo('empleado')}
-              className={`min-h-[44px] flex-1 rounded-lg py-3 text-sm font-semibold transition-all sm:py-2.5 ${
+              title="Iniciar sesión como empleado"
+              className={`min-h-11 flex-1 rounded-lg py-3 text-sm font-semibold transition-all sm:py-2.5 ${
                 tipo === 'empleado'
-                  ? 'bg-white text-orange-600 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-700'
+                  ? 'bg-white text-brand-600 shadow-sm dark:bg-gray-700 dark:text-brand-400'
+                  : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
               }`}
             >
               {loginTexts.toggleEmpleado}
@@ -93,64 +103,49 @@ function Login() {
           </div>
 
           {error && (
-            <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+            <div className="mb-6 rounded-xl border border-error-200 bg-error-50 p-4 text-sm text-error-700 dark:border-error-500/30 dark:bg-error-500/10 dark:text-error-400">
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
-            <div>
-              <label htmlFor="usuario" className="mb-1.5 block text-sm font-medium text-gray-700">
-                {loginTexts.userLabel}
-              </label>
-              <input
+            <Field label={loginTexts.userLabel} htmlFor="usuario">
+              <Input
                 type="text"
                 id="usuario"
                 value={usuario}
                 onChange={(e) => setUsuario(e.target.value)}
                 placeholder={loginTexts.userPlaceholder}
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 transition-colors focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
                 required
               />
-            </div>
+            </Field>
 
-            <div>
-              <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-gray-700">
-                {loginTexts.passLabel}
-              </label>
-              <input
+            <Field label={loginTexts.passLabel} htmlFor="password">
+              <Input
                 type="password"
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder={loginTexts.passPlaceholder}
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 transition-colors focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
                 required
               />
-            </div>
+            </Field>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full rounded-full bg-orange-600 px-6 py-3.5 font-semibold text-white shadow-lg shadow-orange-600/20 transition-all hover:bg-orange-700 hover:shadow-orange-600/30 disabled:cursor-not-allowed disabled:opacity-50"
-            >
+            <Button type="submit" disabled={loading} className="w-full" size="lg" title="Entra con tus credenciales">
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
-                  <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                  </svg>
+                  <Spinner className="h-4 w-4" />
                   {loginTexts.loading}
                 </span>
               ) : (
                 loginTexts.cta
               )}
-            </button>
+            </Button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-gray-500">
+          <p className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
             {loginTexts.linkText}{' '}
-            <a href="/registro" className="font-medium text-orange-600 hover:text-orange-700">
+            <a href="/registro" className="font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300" title="Crear una cuenta nueva">
               {loginTexts.linkCta}
             </a>
           </p>

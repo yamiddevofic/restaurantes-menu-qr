@@ -1,6 +1,12 @@
 import { useState } from 'react';
 import { registroTexts, errors } from '../data/auth';
 import { API_URL } from '../auth';
+import { Field, Input, Select } from '../components/ui/Field';
+import { Button } from '../components/ui/Button';
+import { Card } from '../components/ui/Card';
+import { Spinner } from '../components/ui/Spinner';
+import { FiUser } from 'react-icons/fi';
+import { FaStore } from 'react-icons/fa6';
 
 function Registro() {
   const [step, setStep] = useState(1);
@@ -92,55 +98,59 @@ function Registro() {
     const successSubtitle = registroTexts.successSubtitle.replace('{name}', restaurant.nombre);
 
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-orange-50 to-amber-50 px-4">
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-brand-50 to-accent-50 dark:from-gray-900 dark:to-gray-950 px-4">
         <div className="w-full max-w-sm sm:max-w-md">
-          <div className="rounded-2xl bg-white p-6 text-center shadow-xl ring-1 ring-gray-100 sm:p-8">
-            <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
-              <svg className="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+          <Card elevation="xl" className="p-6 text-center sm:p-8">
+            <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-success-100 dark:bg-success-500/15">
+              <svg className="h-8 w-8 text-success-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h2 className="mb-2 text-xl font-bold text-gray-900 sm:text-2xl">{registroTexts.successTitle}</h2>
-            <p className="mb-6 text-sm text-gray-500 sm:text-base">
-              <span className="font-semibold text-orange-600">{restaurant.nombre}</span>{successSubtitle.replace(restaurant.nombre, '')}
+            <h2 className="mb-2 text-xl font-bold text-gray-900 dark:text-gray-100 sm:text-2xl">{registroTexts.successTitle}</h2>
+            <p className="mb-6 text-sm text-gray-500 dark:text-gray-400 sm:text-base">
+              <span className="font-semibold text-brand-600">{restaurant.nombre}</span>{successSubtitle.replace(restaurant.nombre, '')}
             </p>
-            <div className="mb-6 rounded-xl bg-orange-50 p-4 text-left">
-              <p className="text-sm text-gray-600">
+            <div className="mb-6 rounded-xl bg-brand-50 p-4 text-left dark:bg-brand-500/10">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
                 <span className="font-medium">Administrador:</span> {admin.usuario}
               </p>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
                 <span className="font-medium">Restaurante:</span> {restaurant.nombre}
               </p>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
                 <span className="font-medium">Ubicación:</span> {restaurant.ubicacion}
               </p>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
                 <span className="font-medium">Plan:</span> {admin.plan === 'pro' ? 'Pro' : 'Gratis'}
               </p>
             </div>
-            <button
+            <Button
               onClick={() => window.location.href = '/'}
-              className="w-full rounded-full bg-orange-600 px-6 py-3.5 font-semibold text-white shadow-lg shadow-orange-600/20 transition-all hover:bg-orange-700 hover:shadow-orange-600/30"
+              title="Regresar a la página principal"
+              className="w-full"
+              size="lg"
             >
               {registroTexts.successCta}
-            </button>
-          </div>
+            </Button>
+          </Card>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50">
-      <nav className="border-b border-gray-100 bg-white/80 backdrop-blur-md">
+    <div className="min-h-screen bg-gradient-to-br from-brand-50 to-accent-50 dark:from-gray-900 dark:to-gray-950">
+      <nav className="border-b border-gray-100 bg-white/80 backdrop-blur-md dark:border-gray-800 dark:bg-gray-900/80">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 sm:py-4">
           <a href="/" className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-orange-600 font-bold text-lg text-white">Q</div>
-            <span className="text-xl font-bold tracking-tight text-gray-900 sm:text-2xl">QRTa</span>
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600 font-bold text-lg text-white">Q</div>
+            <span className="text-xl font-bold tracking-tight text-gray-900 dark:text-gray-100 sm:text-2xl">QRTa</span>
           </a>
-          <a href="/" className="text-sm font-medium text-gray-500 transition-colors hover:text-orange-600">
-            Volver al inicio
-          </a>
+          <div className="flex items-center gap-3">
+            <a href="/" className="text-sm font-medium text-gray-500 transition-colors hover:text-brand-600 dark:text-gray-400">
+              Volver al inicio
+            </a>
+          </div>
         </div>
       </nav>
 
@@ -148,208 +158,182 @@ function Registro() {
         <div className="mb-8 sm:mb-10">
           <div className="flex items-center justify-center gap-3 sm:gap-4">
             <div className="flex items-center gap-2">
-              <div className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold transition-colors ${step >= 1 ? 'bg-orange-600 text-white' : 'bg-gray-200 text-gray-500'}`}>
+              <div className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold transition-colors ${step >= 1 ? 'bg-brand-600 text-white' : 'bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400'}`}>
                 {step > 1 ? (
                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
                 ) : '1'}
               </div>
-              <span className={`text-xs font-medium sm:text-sm ${step >= 1 ? 'text-gray-900' : 'text-gray-400'}`}>{registroTexts.stepLabel1}</span>
+              <span className={`text-xs font-medium sm:text-sm ${step >= 1 ? 'text-gray-900 dark:text-gray-100' : 'text-gray-400 dark:text-gray-500'}`}>{registroTexts.stepLabel1}</span>
             </div>
 
-            <div className={`h-0.5 w-8 sm:w-12 ${step >= 2 ? 'bg-orange-600' : 'bg-gray-200'}`}></div>
+            <div className={`h-0.5 w-8 sm:w-12 ${step >= 2 ? 'bg-brand-600' : 'bg-gray-200 dark:bg-gray-700'}`}></div>
 
             <div className="flex items-center gap-2">
-              <div className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold transition-colors ${step >= 2 ? 'bg-orange-600 text-white' : 'bg-gray-200 text-gray-500'}`}>
+              <div className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold transition-colors ${step >= 2 ? 'bg-brand-600 text-white' : 'bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400'}`}>
                 2
               </div>
-              <span className={`text-xs font-medium sm:text-sm ${step >= 2 ? 'text-gray-900' : 'text-gray-400'}`}>{registroTexts.stepLabel2}</span>
+              <span className={`text-xs font-medium sm:text-sm ${step >= 2 ? 'text-gray-900 dark:text-gray-100' : 'text-gray-400 dark:text-gray-500'}`}>{registroTexts.stepLabel2}</span>
             </div>
           </div>
         </div>
 
         {error && (
-          <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+          <div className="mb-6 rounded-xl border border-error-200 bg-error-50 p-4 text-sm text-error-700 dark:border-error-500/30 dark:bg-error-500/10 dark:text-error-400">
             {error}
           </div>
         )}
 
         {step === 1 && (
-          <div className="rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-100 sm:p-8">
+          <Card elevation="xl" className="p-6 sm:p-8">
             <div className="mb-6 text-center sm:mb-8">
-              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-100 text-2xl">👤</div>
-              <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">{registroTexts.step1Title}</h1>
-              <p className="mt-2 text-sm text-gray-500 sm:text-base">{registroTexts.step1Subtitle}</p>
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-100 text-brand-600 dark:bg-brand-500/20 dark:text-brand-400">
+                <FiUser className="h-7 w-7" aria-hidden="true" />
+              </div>
+              <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100 sm:text-2xl">{registroTexts.step1Title}</h1>
+              <p className="mt-2 text-sm text-gray-500 dark:text-gray-400 sm:text-base">{registroTexts.step1Subtitle}</p>
             </div>
 
             <form onSubmit={handleAdminSubmit} className="space-y-4 sm:space-y-5">
-              <div>
-                <label htmlFor="adm-nombre" className="mb-1.5 block text-sm font-medium text-gray-700">
-                  {registroTexts.fields.nombre}
-                </label>
-                <input
+              <Field label={registroTexts.fields.nombre} htmlFor="adm-nombre">
+                <Input
                   type="text"
                   id="adm-nombre"
                   name="nombre"
                   value={admin.nombre}
                   onChange={handleAdminChange}
                   placeholder={registroTexts.placeholders.nombre}
-                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 transition-colors focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
                   required
                 />
-              </div>
+              </Field>
 
-              <div>
-                <label htmlFor="adm-email" className="mb-1.5 block text-sm font-medium text-gray-700">
-                  {registroTexts.fields.email}
-                </label>
-                <input
+              <Field label={registroTexts.fields.email} htmlFor="adm-email">
+                <Input
                   type="email"
                   id="adm-email"
                   name="email"
                   value={admin.email}
                   onChange={handleAdminChange}
                   placeholder={registroTexts.placeholders.email}
-                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 transition-colors focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
                   required
                 />
-              </div>
+              </Field>
 
-              <div>
-                <label htmlFor="adm-usuario" className="mb-1.5 block text-sm font-medium text-gray-700">
-                  {registroTexts.fields.usuario}
-                </label>
-                <input
+              <Field label={registroTexts.fields.usuario} htmlFor="adm-usuario">
+                <Input
                   type="text"
                   id="adm-usuario"
                   name="usuario"
                   value={admin.usuario}
                   onChange={handleAdminChange}
                   placeholder={registroTexts.placeholders.usuario}
-                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 transition-colors focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
                   required
                 />
-              </div>
+              </Field>
 
-              <div>
-                <label htmlFor="adm-password" className="mb-1.5 block text-sm font-medium text-gray-700">
-                  {registroTexts.fields.password}
-                </label>
-                <input
+              <Field label={registroTexts.fields.password} htmlFor="adm-password">
+                <Input
                   type="password"
                   id="adm-password"
                   name="password"
                   value={admin.password}
                   onChange={handleAdminChange}
                   placeholder={registroTexts.placeholders.password}
-                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 transition-colors focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
                   required
                 />
-              </div>
+              </Field>
 
-              <div>
-                <label htmlFor="adm-plan" className="mb-1.5 block text-sm font-medium text-gray-700">
-                  {registroTexts.fields.plan}
-                </label>
-                <select
+              <Field label={registroTexts.fields.plan} htmlFor="adm-plan">
+                <Select
                   id="adm-plan"
                   name="plan"
                   value={admin.plan}
                   onChange={handleAdminChange}
-                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 transition-colors focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
                 >
                   <option value="free">Gratis</option>
                   <option value="pro">Pro</option>
-                </select>
-              </div>
+                </Select>
+              </Field>
 
-              <button
-                type="submit"
-                className="w-full rounded-full bg-orange-600 px-6 py-3.5 font-semibold text-white shadow-lg shadow-orange-600/20 transition-all hover:bg-orange-700 hover:shadow-orange-600/30 hover:-translate-y-0.5"
-              >
+              <Button type="submit" className="w-full" size="lg" title="Continuar con los datos del restaurante">
                 {registroTexts.ctaNext}
-                <svg className="ml-2 inline-block h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <svg className="inline-block h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
-              </button>
+              </Button>
             </form>
-          </div>
+          </Card>
         )}
 
         {step === 2 && (
-          <div className="rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-100 sm:p-8">
+          <Card elevation="xl" className="p-6 sm:p-8">
             <div className="mb-6 text-center sm:mb-8">
-              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-100 text-2xl">🏪</div>
-              <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">{registroTexts.step2Title}</h1>
-              <p className="mt-2 text-sm text-gray-500 sm:text-base">
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-100 text-brand-600 dark:bg-brand-500/20 dark:text-brand-400">
+                <FaStore className="h-7 w-7" aria-hidden="true" />
+              </div>
+              <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100 sm:text-2xl">{registroTexts.step2Title}</h1>
+              <p className="mt-2 text-sm text-gray-500 dark:text-gray-400 sm:text-base">
                 {registroTexts.step2Subtitle.replace('{user}', admin.usuario).split(admin.usuario).map((part, i) => (
-                  i === 0 ? <span key={i}>{part}</span> : <span key={i}><span className="font-semibold text-orange-600">{admin.usuario}</span>{part}</span>
+                  i === 0 ? <span key={i}>{part}</span> : <span key={i}><span className="font-semibold text-brand-600">{admin.usuario}</span>{part}</span>
                 ))}
               </p>
             </div>
 
             <form onSubmit={handleRestaurantSubmit} className="space-y-4 sm:space-y-5">
-              <div>
-                <label htmlFor="rest-nombre" className="mb-1.5 block text-sm font-medium text-gray-700">
-                  {registroTexts.fields.restNombre}
-                </label>
-                <input
+              <Field label={registroTexts.fields.restNombre} htmlFor="rest-nombre">
+                <Input
                   type="text"
                   id="rest-nombre"
                   name="nombre"
                   value={restaurant.nombre}
                   onChange={handleRestaurantChange}
                   placeholder={registroTexts.placeholders.restNombre}
-                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 transition-colors focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
                   required
                 />
-              </div>
+              </Field>
 
-              <div>
-                <label htmlFor="rest-ubicacion" className="mb-1.5 block text-sm font-medium text-gray-700">
-                  {registroTexts.fields.ubicacion}
-                </label>
-                <input
+              <Field label={registroTexts.fields.ubicacion} htmlFor="rest-ubicacion">
+                <Input
                   type="text"
                   id="rest-ubicacion"
                   name="ubicacion"
                   value={restaurant.ubicacion}
                   onChange={handleRestaurantChange}
                   placeholder={registroTexts.placeholders.ubicacion}
-                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 transition-colors focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20"
                   required
                 />
-              </div>
+              </Field>
 
               <div className="flex gap-3">
-                <button
-                  type="button"
+                <Button
+                  variant="outline"
                   onClick={() => { setStep(1); setError(''); }}
-                  className="min-h-[44px] flex-1 rounded-full border border-gray-200 px-6 py-3 font-semibold text-gray-700 transition-all hover:bg-gray-50 sm:py-3.5"
+                  title="Volver a los datos de la cuenta"
+                  className="flex-1"
+                  size="lg"
                 >
                   {registroTexts.ctaBack}
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
                   disabled={loading}
-                  className="min-h-[44px] flex-1 rounded-full bg-orange-600 px-6 py-3 font-semibold text-white shadow-lg shadow-orange-600/20 transition-all hover:bg-orange-700 hover:shadow-orange-600/30 disabled:cursor-not-allowed disabled:opacity-50 sm:py-3.5"
+                  title="Crear la cuenta y el restaurante"
+                  className="flex-1"
+                  size="lg"
                 >
                   {loading ? (
                     <span className="flex items-center justify-center gap-2">
-                      <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                      </svg>
+                      <Spinner className="h-4 w-4" />
                       {registroTexts.loading}
                     </span>
                   ) : (
                     registroTexts.ctaSubmit
                   )}
-                </button>
+                </Button>
               </div>
             </form>
-          </div>
+          </Card>
         )}
       </div>
     </div>

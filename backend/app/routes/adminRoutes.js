@@ -1,6 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const AdminController = require('../controllers/Admin.Controller');
+const authMiddleware = require('../middleware/authMiddleware');
+const requireAdmin = require('../middleware/requireAdmin');
+const validate = require('../middleware/validate');
+const { registroAdminSchema, updateAdminSchema, estadoSchema } = require('../validations/admin.validations');
 
 /**
  * @swagger
@@ -12,7 +16,10 @@ const AdminController = require('../controllers/Admin.Controller');
  *       200:
  *         description: Lista de administradores
  */
-router.get('/', AdminController.index);
+// Solo un administrador autenticado puede administrar cuentas.
+// El registro (POST /) queda público y validado con Zod.
+const adminProtegido = [authMiddleware, requireAdmin];
+router.get('/', ...adminProtegido, AdminController.index);
 
 /**
  * @swagger
@@ -33,7 +40,7 @@ router.get('/', AdminController.index);
  *       404:
  *         description: Administrador no encontrado
  */
-router.get('/:id', AdminController.show);
+router.get('/:id', ...adminProtegido, AdminController.show);
 
 /**
  * @swagger
@@ -70,7 +77,7 @@ router.get('/:id', AdminController.show);
  *       400:
  *         description: Datos inválidos
  */
-router.post('/', AdminController.store);
+router.post('/', validate(registroAdminSchema), AdminController.store);
 
 /**
  * @swagger
@@ -108,7 +115,7 @@ router.post('/', AdminController.store);
  *       404:
  *         description: Administrador no encontrado
  */
-router.put('/:id', AdminController.update);
+router.put('/:id', ...adminProtegido, validate(updateAdminSchema), AdminController.update);
 
 /**
  * @swagger
@@ -138,7 +145,7 @@ router.put('/:id', AdminController.update);
  *       404:
  *         description: Administrador no encontrado
  */
-router.patch('/:id/estado', AdminController.cambiarEstado);
+router.patch('/:id/estado', ...adminProtegido, validate(estadoSchema), AdminController.cambiarEstado);
 
 /**
  * @swagger
@@ -158,6 +165,6 @@ router.patch('/:id/estado', AdminController.cambiarEstado);
  *       404:
  *         description: Administrador no encontrado
  */
-router.delete('/:id', AdminController.destroy);
+router.delete('/:id', ...adminProtegido, AdminController.destroy);
 
 module.exports = router;

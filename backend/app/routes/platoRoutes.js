@@ -2,10 +2,14 @@ const express = require('express');
 const router = express.Router();
 const PlatoController = require('../controllers/Plato.Controller');
 const authMiddleware = require('../middleware/authMiddleware');
+const validate = require('../middleware/validate');
+const { uploadPlatoImagen } = require('../middleware/uploadMiddleware');
+const { platoSchema, updatePlatoSchema, cambiarEstadoPlatoSchema } = require('../validations/plato.validations');
 
 // Todos los manejos de platos son operaciones de administración (el menú
 // público se sirve a través de /restaurantes/menu/:qr_code)
 router.use(authMiddleware);
+
 
 /**
  * @swagger
@@ -88,7 +92,7 @@ router.get('/:id', PlatoController.show);
  *       400:
  *         description: Datos inválidos
  */
-router.post('/', PlatoController.store);
+router.post('/', uploadPlatoImagen, validate(platoSchema), PlatoController.store);
 
 /**
  * @swagger
@@ -135,7 +139,7 @@ router.post('/', PlatoController.store);
  *       404:
  *         description: Plato no encontrado
  */
-router.put('/:id', PlatoController.update);
+router.put('/:id', uploadPlatoImagen, validate(updatePlatoSchema), PlatoController.update);
 
 /**
  * @swagger
@@ -165,7 +169,7 @@ router.put('/:id', PlatoController.update);
  *       404:
  *         description: Plato no encontrado
  */
-router.patch('/:id/estado', PlatoController.cambiarEstado);
+router.patch('/:id/estado', validate(cambiarEstadoPlatoSchema), PlatoController.cambiarEstado);
 
 /**
  * @swagger

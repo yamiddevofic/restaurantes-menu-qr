@@ -37,7 +37,8 @@ const store = async (req, res) => {
         await pedido.save();
         res.status(201).json(pedido);
     } catch (err) {
-        res.status(400).json({ message: 'Error al guardar el pedido', error: err.message });
+        // Mensajes controlados de negocio (plato no encontrado / no disponible)
+        res.status(400).json({ message: err.message || 'Error al guardar el pedido' });
     }
 };
 
@@ -48,7 +49,7 @@ const index = async (req, res) => {
         const pedidos = await Pedido.find(filtro).sort({ datetime_created: -1 });
         res.json(pedidos);
     } catch (err) {
-        res.status(500).json({ message: 'Error al listar los pedidos', error: err.message });
+        res.status(500).json({ message: 'Error al listar los pedidos' });
     }
 };
 
@@ -59,7 +60,7 @@ const show = async (req, res) => {
         if (!pedido) return res.status(404).json({ message: 'Pedido no encontrado' });
         res.json(pedido);
     } catch (err) {
-        res.status(500).json({ message: 'Error al consultar el pedido', error: err.message });
+        res.status(500).json({ message: 'Error al consultar el pedido' });
     }
 };
 
@@ -96,7 +97,7 @@ const cambiarEstado = async (req, res) => {
         await pedido.save();
         res.json({ pedido, premioGanado });
     } catch (err) {
-        res.status(500).json({ message: 'Error al cambiar el estado del pedido', error: err.message });
+        res.status(500).json({ message: 'Error al cambiar el estado del pedido' });
     }
 };
 
@@ -130,7 +131,7 @@ const update = async (req, res) => {
         await pedido.save();
         res.json(pedido);
     } catch (err) {
-        res.status(500).json({ message: 'Error al modificar el pedido', error: err.message });
+        res.status(500).json({ message: 'Error al modificar el pedido' });
     }
 };
 
@@ -141,7 +142,7 @@ const destroy = async (req, res) => {
         if (!pedido) return res.status(404).json({ message: 'Pedido no encontrado' });
         res.json({ message: 'Pedido eliminado correctamente' });
     } catch (err) {
-        res.status(500).json({ message: 'Error al eliminar el pedido', error: err.message });
+        res.status(500).json({ message: 'Error al eliminar el pedido' });
     }
 };
 

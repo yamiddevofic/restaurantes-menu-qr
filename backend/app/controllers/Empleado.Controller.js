@@ -9,7 +9,7 @@ const store = async (req, res, next) => {
             restaurante_id: req.body.restaurante_id,
             nombre: req.body.nombre,
             usuario: req.body.usuario,
-            password: bcrypt.hashSync(req.body.password, 10),
+            password: bcrypt.hashSync(req.body.password, 12),
             rol: req.body.rol,
             contacto: req.body.contacto,
             estado: req.body.estado || 'ACTIVO'
@@ -17,7 +17,7 @@ const store = async (req, res, next) => {
         await empleado.save();
         res.status(201).json({ message: 'Empleado guardado correctamente' })
     } catch (err) {
-        res.status(500).json({ message: 'Error al guardar el empleado', error: err.message })
+        res.status(500).json({ message: 'Error al guardar el empleado' })
     }
 }
 
@@ -40,7 +40,7 @@ const show = async (req, res, next) => {
         if (!empleado) return res.status(404).json({ message: 'Empleado no encontrado' });
         res.json(empleado);
     } catch (err) {
-        res.status(500).json({ message: 'Error al consultar el empleado', error: err.message });
+        res.status(500).json({ message: 'Error al consultar el empleado' });
     }
 }
 
@@ -55,7 +55,7 @@ const update = async (req, res) => {
             contacto: req.body.contacto
         };
         if (req.body.password) {
-            updateData.password = bcrypt.hashSync(req.body.password, 10);
+            updateData.password = bcrypt.hashSync(req.body.password, 12);
         }
         const empleado = await Empleado.findByIdAndUpdate(
             req.params.id,
@@ -65,7 +65,7 @@ const update = async (req, res) => {
         if (!empleado) return res.status(404).json({ message: 'Empleado no encontrado' });
         res.json(empleado);
     } catch (err) {
-        res.status(500).json({ message: 'Error al modificar el empleado', error: err.message });
+        res.status(500).json({ message: 'Error al modificar el empleado' });
     }
 }
 
@@ -80,7 +80,7 @@ const cambiarEstado = async (req, res) => {
         if (!empleado) return res.status(404).json({ message: 'Empleado no encontrado' });
         res.json(empleado);
     } catch (err) {
-        res.status(500).json({ message: 'Error al cambiar el estado del empleado', error: err.message });
+        res.status(500).json({ message: 'Error al cambiar el estado del empleado' });
     }
 }
 
@@ -91,7 +91,7 @@ const destroy = async (req, res) => {
         if (!empleado) return res.status(404).json({ message: 'Empleado no encontrado' });
         res.json({ message: 'Empleado eliminado correctamente' });
     } catch (err) {
-        res.status(500).json({ message: 'Error al eliminar el empleado', error: err.message });
+        res.status(500).json({ message: 'Error al eliminar el empleado' });
     }
 }
 

@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const ClienteController = require('../controllers/Cliente.Controller');
+const authMiddleware = require('../middleware/authMiddleware');
+const validate = require('../middleware/validate');
+const { clienteSchema, updateClienteSchema } = require('../validations/pedido.validations');
 
 /**
  * @swagger
@@ -12,7 +15,7 @@ const ClienteController = require('../controllers/Cliente.Controller');
  *       200:
  *         description: Lista de clientes
  */
-router.get('/', ClienteController.index);
+router.get('/', authMiddleware, ClienteController.index);
 
 /**
  * @swagger
@@ -33,7 +36,7 @@ router.get('/', ClienteController.index);
  *       404:
  *         description: Cliente no encontrado
  */
-router.get('/:id', ClienteController.show);
+router.get('/:id', authMiddleware, ClienteController.show);
 
 /**
  * @swagger
@@ -68,7 +71,8 @@ router.get('/:id', ClienteController.show);
  *       400:
  *         description: Datos inválidos
  */
-router.post('/', ClienteController.store);
+// Público: el cliente se crea desde el flujo QR (pedir sin registro)
+router.post('/', validate(clienteSchema), ClienteController.store);
 
 /**
  * @swagger
@@ -106,7 +110,7 @@ router.post('/', ClienteController.store);
  *       404:
  *         description: Cliente no encontrado
  */
-router.put('/:id', ClienteController.update);
+router.put('/:id', authMiddleware, validate(updateClienteSchema), ClienteController.update);
 
 /**
  * @swagger
@@ -136,7 +140,7 @@ router.put('/:id', ClienteController.update);
  *       404:
  *         description: Cliente no encontrado
  */
-router.patch('/:id/estado', ClienteController.cambiarEstado);
+router.patch('/:id/estado', authMiddleware, ClienteController.cambiarEstado);
 
 /**
  * @swagger
@@ -156,6 +160,6 @@ router.patch('/:id/estado', ClienteController.cambiarEstado);
  *       404:
  *         description: Cliente no encontrado
  */
-router.delete('/:id', ClienteController.destroy);
+router.delete('/:id', authMiddleware, ClienteController.destroy);
 
 module.exports = router;

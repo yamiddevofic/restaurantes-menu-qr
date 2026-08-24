@@ -11,6 +11,15 @@ const administradorSchema = new Schema({
     required: true,
     unique: true
   },
+  telefono: {
+    type: String
+  },
+  bio: {
+    type: String
+  },
+  avatar: {
+    type: String
+  },
   usuario: {
     type: String,
     required: true,
@@ -24,6 +33,9 @@ const administradorSchema = new Schema({
     type: String,
     enum: ['free', 'pro'],
     default: 'free'
+  },
+  plan_vencimiento: {
+    type: Date
   },
   fecha_registro: {
     type: Date,

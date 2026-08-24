@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const PedidoController = require('../controllers/Pedido.Controller');
+const authMiddleware = require('../middleware/authMiddleware');
+const validate = require('../middleware/validate');
+const { pedidoSchema, updatePedidoSchema, cambiarEstadoPedidoSchema } = require('../validations/pedido.validations');
 
 /**
  * @swagger
@@ -12,7 +15,9 @@ const PedidoController = require('../controllers/Pedido.Controller');
  *       200:
  *         description: Lista de pedidos
  */
-router.get('/', PedidoController.index);
+// Autenticado: consultar y gestionar pedidos es administración.
+// El POST / queda público (el cliente pide desde el menú QR sin registrarse).
+router.get('/', authMiddleware, PedidoController.index);
 
 /**
  * @swagger
@@ -33,7 +38,7 @@ router.get('/', PedidoController.index);
  *       404:
  *         description: Pedido no encontrado
  */
-router.get('/:id', PedidoController.show);
+router.get('/:id', authMiddleware, PedidoController.show);
 
 /**
  * @swagger
@@ -74,7 +79,8 @@ router.get('/:id', PedidoController.show);
  *       400:
  *         description: Datos inválidos
  */
-router.post('/', PedidoController.store);
+// Público: el cliente crea el pedido desde el QR de la mesa
+router.post('/', validate(pedidoSchema), PedidoController.store);
 
 /**
  * @swagger
@@ -119,7 +125,7 @@ router.post('/', PedidoController.store);
  *       404:
  *         description: Pedido no encontrado
  */
-router.put('/:id', PedidoController.update);
+router.put('/:id', authMiddleware, validate(updatePedidoSchema), PedidoController.update);
 
 /**
  * @swagger
@@ -149,7 +155,7 @@ router.put('/:id', PedidoController.update);
  *       404:
  *         description: Pedido no encontrado
  */
-router.patch('/:id/estado', PedidoController.cambiarEstado);
+router.patch('/:id/estado', authMiddleware, validate(cambiarEstadoPedidoSchema), PedidoController.cambiarEstado);
 
 /**
  * @swagger
@@ -169,6 +175,6 @@ router.patch('/:id/estado', PedidoController.cambiarEstado);
  *       404:
  *         description: Pedido no encontrado
  */
-router.delete('/:id', PedidoController.destroy);
+router.delete('/:id', authMiddleware, PedidoController.destroy);
 
 module.exports = router;

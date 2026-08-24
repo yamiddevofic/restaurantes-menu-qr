@@ -1,6 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const EmpleadoController = require('../controllers/Empleado.Controller');
+const authMiddleware = require('../middleware/authMiddleware');
+const requireAdmin = require('../middleware/requireAdmin');
+const validate = require('../middleware/validate');
+const { empleadoSchema, updateEmpleadoSchema } = require('../validations/empleado.validations');
+const { estadoSchema } = require('../validations/admin.validations');
+
+// La gestión de empleados es administración: siempre se exige sesión
+router.use(authMiddleware);
+const soloAdmin = requireAdmin;
 
 /**
  * @swagger
@@ -78,7 +87,7 @@ router.get('/:id', EmpleadoController.show);
  *       400:
  *         description: Datos inválidos
  */
-router.post('/', EmpleadoController.store);
+router.post('/', soloAdmin, validate(empleadoSchema), EmpleadoController.store);
 
 /**
  * @swagger
@@ -121,7 +130,7 @@ router.post('/', EmpleadoController.store);
  *       404:
  *         description: Empleado no encontrado
  */
-router.put('/:id', EmpleadoController.update);
+router.put('/:id', soloAdmin, validate(updateEmpleadoSchema), EmpleadoController.update);
 
 /**
  * @swagger
@@ -151,7 +160,7 @@ router.put('/:id', EmpleadoController.update);
  *       404:
  *         description: Empleado no encontrado
  */
-router.patch('/:id/estado', EmpleadoController.cambiarEstado);
+router.patch('/:id/estado', soloAdmin, validate(estadoSchema), EmpleadoController.cambiarEstado);
 
 /**
  * @swagger
@@ -171,6 +180,6 @@ router.patch('/:id/estado', EmpleadoController.cambiarEstado);
  *       404:
  *         description: Empleado no encontrado
  */
-router.delete('/:id', EmpleadoController.destroy);
+router.delete('/:id', soloAdmin, EmpleadoController.destroy);
 
 module.exports = router;

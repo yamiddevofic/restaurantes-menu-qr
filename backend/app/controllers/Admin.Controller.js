@@ -8,7 +8,7 @@ const store = async (req, res) => {
             nombre: req.body.nombre,
             email: req.body.email,
             usuario: req.body.usuario,
-            password: bcrypt.hashSync(req.body.password, 10),
+            password: bcrypt.hashSync(req.body.password, 12),
             plan: req.body.plan || "free",
             fecha_registro: new Date(),
             estado: 'ACTIVO'
@@ -19,7 +19,7 @@ const store = async (req, res) => {
         if (err.code === 11000) {
             return res.status(409).json({ message: 'El email o usuario ya está registrado' });
         }
-        res.status(500).json({ message: 'Error al guardar el administrador', error: err.message });
+        res.status(500).json({ message: 'Error al guardar el administrador' });
     }
 };
 
@@ -29,7 +29,7 @@ const index = async (req, res) => {
         const administradores = await Administrador.find().select('-password');
         res.json(administradores);
     } catch (err) {
-        res.status(500).json({ message: 'Error al listar los administradores', error: err.message });
+        res.status(500).json({ message: 'Error al listar los administradores' });
     }
 };
 
@@ -40,7 +40,7 @@ const show = async (req, res) => {
         if (!administrador) return res.status(404).json({ message: 'Administrador no encontrado' });
         res.json(administrador);
     } catch (err) {
-        res.status(500).json({ message: 'Error al consultar el administrador', error: err.message });
+        res.status(500).json({ message: 'Error al consultar el administrador' });
     }
 };
 
@@ -54,7 +54,7 @@ const update = async (req, res) => {
             plan: req.body.plan
         };
         if (req.body.password) {
-            updateData.password = bcrypt.hashSync(req.body.password, 10);
+            updateData.password = bcrypt.hashSync(req.body.password, 12);
         }
         const administrador = await Administrador.findByIdAndUpdate(
             req.params.id,
@@ -64,7 +64,7 @@ const update = async (req, res) => {
         if (!administrador) return res.status(404).json({ message: 'Administrador no encontrado' });
         res.json(administrador);
     } catch (err) {
-        res.status(500).json({ message: 'Error al modificar el administrador', error: err.message });
+        res.status(500).json({ message: 'Error al modificar el administrador' });
     }
 };
 
@@ -79,7 +79,7 @@ const cambiarEstado = async (req, res) => {
         if (!administrador) return res.status(404).json({ message: 'Administrador no encontrado' });
         res.json(administrador);
     } catch (err) {
-        res.status(500).json({ message: 'Error al cambiar el estado del administrador', error: err.message });
+        res.status(500).json({ message: 'Error al cambiar el estado del administrador' });
     }
 };
 
@@ -90,7 +90,7 @@ const destroy = async (req, res) => {
         if (!administrador) return res.status(404).json({ message: 'Administrador no encontrado' });
         res.json({ message: 'Administrador eliminado correctamente' });
     } catch (err) {
-        res.status(500).json({ message: 'Error al eliminar el administrador', error: err.message });
+        res.status(500).json({ message: 'Error al eliminar el administrador' });
     }
 };
 

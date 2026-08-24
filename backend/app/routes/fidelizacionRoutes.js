@@ -1,6 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const FidelizacionController = require('../controllers/Fidelizacion.Controller');
+const authMiddleware = require('../middleware/authMiddleware');
+
+// La fidelización es administración: siempre se exige sesión
+// (la actualización automática al entregar pedidos ocurre en el servidor)
+router.use(authMiddleware);
 
 /**
  * @swagger

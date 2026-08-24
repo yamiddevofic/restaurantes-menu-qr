@@ -1,0 +1,221 @@
+/*
+ * ─────────────────────────────────────────────────────────────────────────────
+ *  QRTa Design System — Tailwind v4 (CSS-first)
+ * ─────────────────────────────────────────────────────────────────────────────
+*  Nomenclatura semántica + psicología del color:
+ *   · brand-*    → naranja (primario): estimula el apetito, energía y urgencia
+ *                  de compra. Solo en acciones principales (CTAs, botones,
+ *                  links y acentos de marca). Demasiado naranja agota: se usa
+ *                  con moderación sobre fondos cálidos neutros.
+ *   · accent-*   → ámbar decorativo: recompensa, optimismo y atención. Para
+ *                  resaltar logros (estrellas, badges "Más popular", blobs).
+ *   · success-*  → verde: confianza, calma y crecimiento. Solo en canales de
+ *                  contacto/confirmación (WhatsApp, checks de planes). El
+ *                  verde tranquiliza: nunca compite con el CTA naranja.
+ *   · warning-*  → ámbar semántico: estados "Agotado", avisos de atención.
+ *   · error-*    → rojo: destrucción y errores. Nunca para acciones positivas.
+ *   · info-*     → azul: confianza y claridad para métricas/información.
+ *   · gray-*     → neutros: estructura, fondos de descanso para que el naranja
+ *                  respire. Sin color = jerarquía por contraste, no por ruido.
+ *  Escala tipográfica, radios (rounded-xl/2xl/full), breakpoints (sm/md/lg/xl),
+ *  duraciones (duration-200/300) y curvas (default) siguen el default de
+ *  Tailwind: son ya un sistema consistente y se reutilizan tal cual.
+ *  Z-index por convención: nav fijo = z-50, barra sticky = z-40, overlay/modal
+ *  = z-50 (Tailwind v4 no genera utilitarios de z-index desde --z-*, se usan
+ *  los valores por defecto).
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
+ 
+.test{
+  background: #fff7ed;
+}
+
+@theme {
+  /* ── Breakpoints ──────────────────────────────────────────────────────── */
+  /* Se deshabilitan los defaults de Tailwind: se redefinen abajo como
+     variantes con orientation para que las tablets en vertical se vean
+     como celular y en horizontal como PC. */
+  --breakpoint-*: initial;
+
+  /* ── Tipografía ───────────────────────────────────────────────────────── */
+  /* Plus Jakarta Sans: moderna, amigable y cercana. Se carga desde Google
+     Fonts (index.html) para que desktop y mobile rendericen idéntico.      */
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  /* ── brand: primario (naranja) ─────────────────────────────────────────── */
+  --color-brand-50: #fff7ed;
+  --color-brand-100: #ffedd5;
+  --color-brand-200: #fed7aa;
+  --color-brand-300: #fdba74;
+  --color-brand-400: #fb923c;
+  --color-brand-500: #f97316;
+  --color-brand-600: #ea580c;
+  --color-brand-700: #c2410c;
+  --color-brand-800: #9a3412;
+  --color-brand-900: #7c2d12;
+  --color-brand-950: #431407;
+
+  /* ── accent (ámbar decorativo) ─────────────────────────────────── */
+  --color-accent-50: #fffbeb;
+  --color-accent-100: #fef3c7;
+  --color-accent-200: #fde68a;
+  --color-accent-300: #fcd34d;
+  --color-accent-400: #fbbf24;
+  --color-accent-500: #f59e0b;
+  --color-accent-600: #d97706;
+  --color-accent-700: #b45309;
+  --color-accent-800: #92400e;
+  --color-accent-900: #78350f;
+
+  /* ── success: verde ────────────────────────────────────────────── */
+  --color-success-50: #f0fdf4;
+  --color-success-100: #dcfce7;
+  --color-success-200: #bbf7d0;
+  --color-success-300: #86efac;
+  --color-success-400: #4ade80;
+  --color-success-500: #22c55e;
+  --color-success-600: #16a34a;
+  --color-success-700: #15803d;
+  --color-success-800: #166534;
+  --color-success-900: #14532d;
+
+  /* ── warning: ámbar semántico ──────────────────────────────────── */
+  --color-warning-50: #fffbeb;
+  --color-warning-100: #fef3c7;
+  --color-warning-200: #fde68a;
+  --color-warning-300: #fcd34d;
+  --color-warning-400: #fbbf24;
+  --color-warning-500: #f59e0b;
+  --color-warning-600: #d97706;
+  --color-warning-700: #b45309;
+  --color-warning-800: #92400e;
+  --color-warning-900: #78350f;
+
+  /* ── error: rojo ───────────────────────────────────────────────── */
+  --color-error-50: #fef2f2;
+  --color-error-100: #fee2e2;
+  --color-error-200: #fecaca;
+  --color-error-300: #fca5a5;
+  --color-error-400: #f87171;
+  --color-error-500: #ef4444;
+  --color-error-600: #dc2626;
+  --color-error-700: #b91c1c;
+  --color-error-800: #991b1b;
+  --color-error-900: #7f1d1d;
+
+  /* ── info: azul ────────────────────────────────────────────────── */
+  --color-info-50: #eff6ff;
+  --color-info-100: #dbeafe;
+  --color-info-200: #bfdbfe;
+  --color-info-300: #93c5fd;
+  --color-info-400: #60a5fa;
+  --color-info-500: #3b82f6;
+  --color-info-600: #2563eb;
+  --color-info-700: #1d4ed8;
+  --color-info-800: #1e40af;
+  --color-info-900: #1e3a8a;
+
+  /* ── Sombras ───────────────────────────────────────────────────── */
+  /* card = shadow-sm default; card-hover = shadow-lg default        */
+  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-card-hover: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+  /* ── Opacidad ──────────────────────────────────────────────────────────── */
+  --opacity-disabled: 0.5; /* control deshabilitado */
+}
+
+/* ── Breakpoints con orientación ──────────────────────────────────────────
+   sm/md/lg/xl/2xl solo aplican en apaisado (orientation: landscape), así
+   las tablets en vertical muestran el layout de celular y en horizontal
+   el de PC. Se usan px (no rem) para que una tablet de 768px en vertical
+   caiga siempre en mobile, sin importar el zoom/fuente del navegador. */
+@custom-variant sm {
+  @media (min-width: 640px) and (orientation: landscape) {
+    @slot;
+  }
+}
+
+@custom-variant md {
+  @media (min-width: 768px) and (orientation: landscape) {
+    @slot;
+  }
+}
+
+@custom-variant lg {
+  @media (min-width: 1024px) and (orientation: landscape) {
+    @slot;
+  }
+}
+
+@custom-variant xl {
+  @media (min-width: 1280px) and (orientation: landscape) {
+    @slot;
+  }
+}
+
+@custom-variant 2xl {
+  @media (min-width: 1536px) and (orientation: landscape) {
+    @slot;
+  }
+}
+
+/* ── Pantallas con poca altura vertical (smart displays: Nest Hub 1024×560,
+   Nest Hub Max 1025×600): layout de desktop pero compactado para ver cada
+   sección de un vistazo. */
+@custom-variant nest {
+  @media (min-width: 1024px) and (max-height: 620px) {
+    @slot;
+  }
+}
+
+/* ── Drawer lateral (smart displays): el menú entra deslizándose desde la
+   derecha en pantallas anchas y bajas (Nest Hub 1024×560, Max 1025×600). */
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* ── Toast: entra desde abajo (zona natural del pulgar en móvil). 250 ms de
+   microinteracción; se desactiva con prefers-reduced-motion (ver index.css). */
+@keyframes toast-slide-up {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 0.75rem);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+/* ── Teléfonos pequeños (≤360px, p. ej. 320×580): compactar hero, textos
+   y botones para que aprovechen mejor el poco espacio vertical. Los
+   móviles grandes (~390px en adelante) usan el mobile base. */
+@custom-variant small {
+  @media (max-width: 360px) {
+    @slot;
+  }
+}
+
+/* ── Tablets en vertical (640–1024px en portrait, p. ej. iPad 768×1024 o
+   iPad Pro 1024×1366): los breakpoints sm/md/lg exigen landscape, así que
+   aquí se replican los estilos de tablet para que usen las columnas. */
+@custom-variant tablet {
+  @media (min-width: 640px) and (max-width: 1024px) and (orientation: portrait) {
+    @slot;
+  }
+}
+
+/* ── Tablets en horizontal (1024–1279px en landscape, p. ej. iPad 1024×768):
+   el menú se vuelve hamburguesa lateral (drawer) en vez del dropdown hacia
+   abajo, porque el viewport es corto. Cubre también los smart displays. */
+@custom-variant land {
+  @media (min-width: 1024px) and (max-width: 1279px) and (orientation: landscape) {
+    @slot;
+  }
+}

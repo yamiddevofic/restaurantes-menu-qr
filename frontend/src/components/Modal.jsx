@@ -1,4 +1,5 @@
 import { FiX } from 'react-icons/fi'
+import { IconButton } from './ui/Button'
 
 function Modal({ title, onClose, children }) {
   return (
@@ -10,18 +11,14 @@ function Modal({ title, onClose, children }) {
       onClick={onClose}
     >
       <div
-        className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-t-2xl bg-white p-6 shadow-2xl sm:rounded-2xl"
+        className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-t-2xl bg-white p-6 shadow-2xl dark:bg-gray-900 sm:rounded-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-5 flex items-center justify-between">
-          <h2 className="text-lg font-bold text-gray-900">{title}</h2>
-          <button
-            onClick={onClose}
-            aria-label="Cerrar"
-            className="flex h-11 w-11 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
-          >
+          <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">{title}</h2>
+          <IconButton label="Cerrar" title="Cerrar ventana sin guardar" onClick={onClose}>
             <FiX className="h-5 w-5" />
-          </button>
+          </IconButton>
         </div>
         {children}
       </div>

@@ -3,8 +3,8 @@ export const footerBrand = 'QRTa'
 export const footerTagline = 'Menús digitales para restaurantes de Chitagá'
 
 export const footerLinks = [
-  { label: 'Privacidad', href: '#' },
-  { label: 'Términos', href: '#' },
+  { label: 'Privacidad', href: '/privacidad' },
+  { label: 'Términos', href: '/terminos' },
   { label: 'Soporte', href: '#contacto' },
 ]
 
@@ -12,6 +12,13 @@ export const footerContact = {
   whatsapp: 'https://wa.me/573001234567',
   email: 'hola@chitagatech.org',
 }
+
+export const footerSocial = [
+  { icon: 'instagram', label: 'Instagram de QRTa', href: 'https://instagram.com/chitagatech' },
+  { icon: 'facebook', label: 'Facebook de QRTa', href: 'https://facebook.com/chitagatech' },
+  { icon: 'tiktok', label: 'TikTok de QRTa', href: 'https://tiktok.com/@chitagatech' },
+  { icon: 'youtube', label: 'YouTube de QRTa', href: 'https://youtube.com/@chitagatech' },
+]
 
 export const footerCopyright = '© 2026 QRTa by Chitagá Tech. Hecho con amor en Chitagá.'
 

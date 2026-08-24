@@ -2,20 +2,17 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { useAuth, API_URL } from '../auth'
 import Modal from '../components/Modal'
+import { Card } from '../components/ui/Card'
+import { Spinner } from '../components/ui/Spinner'
+import { Button } from '../components/ui/Button'
+import { Field, inputCls } from '../components/ui/Field'
+import { SideDrawer, DrawerItem } from '../components/SideDrawer'
+import { formatCOP } from '../utils/format'
 import {
   FiArrowLeft, FiLogOut, FiPlus, FiEdit2, FiTrash2, FiCoffee,
-  FiGrid, FiPackage, FiAlertCircle, FiToggleLeft, FiToggleRight
+  FiGrid, FiPackage, FiAlertCircle, FiToggleLeft, FiToggleRight, FiHeart,
+  FiSettings, FiUser
 } from 'react-icons/fi'
-
-const formatCOP = (n) =>
-  new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(n)
-
-const inputCls =
-  'w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 transition-colors focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20'
-const btnPrimary =
-  'flex min-h-[44px] w-full items-center justify-center gap-2 rounded-full bg-orange-600 px-6 py-2.5 font-semibold text-white shadow-lg shadow-orange-600/20 transition-all hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-50'
-const btnGhost =
-  'flex min-h-[44px] w-full items-center justify-center gap-2 rounded-full border border-gray-200 px-6 py-2.5 font-semibold text-gray-700 transition-all hover:bg-gray-50'
 
 function fetchApi(token, url, options = {}) {
   return fetch(`${API_URL}${url}`, {
@@ -62,12 +59,9 @@ function CategoriaForm({ token, restauranteId, initial, onDone, onCancel }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {error && (
-        <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>
+        <div className="rounded-xl border border-error-200 bg-error-50 p-3 text-sm text-error-700 dark:bg-error-500/10 dark:text-error-400">{error}</div>
       )}
-      <div>
-        <label htmlFor="cat-nombre" className="mb-1.5 block text-sm font-medium text-gray-700">
-          Nombre
-        </label>
+      <Field label="Nombre" htmlFor="cat-nombre">
         <input
           id="cat-nombre"
           type="text"
@@ -77,11 +71,8 @@ function CategoriaForm({ token, restauranteId, initial, onDone, onCancel }) {
           className={inputCls}
           required
         />
-      </div>
-      <div>
-        <label htmlFor="cat-descripcion" className="mb-1.5 block text-sm font-medium text-gray-700">
-          Descripción (opcional)
-        </label>
+      </Field>
+      <Field label="Descripción (opcional)" htmlFor="cat-descripcion">
         <textarea
           id="cat-descripcion"
           value={descripcion}
@@ -89,14 +80,14 @@ function CategoriaForm({ token, restauranteId, initial, onDone, onCancel }) {
           rows={3}
           className={inputCls}
         />
-      </div>
+      </Field>
       <div className="flex gap-3 pt-1">
-        <button type="button" onClick={onCancel} className={btnGhost}>
+        <Button variant="outline" type="button" onClick={onCancel} className="flex-1">
           Cancelar
-        </button>
-        <button type="submit" disabled={saving} className={btnPrimary}>
+        </Button>
+        <Button type="submit" disabled={saving} className="flex-1">
           {saving ? 'Guardando...' : initial ? 'Guardar cambios' : 'Crear categoría'}
-        </button>
+        </Button>
       </div>
     </form>
   )
@@ -170,12 +161,9 @@ function PlatoForm({ token, restauranteId, categoriaId, initial, onDone, onCance
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {error && (
-        <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>
+        <div className="rounded-xl border border-error-200 bg-error-50 p-3 text-sm text-error-700 dark:bg-error-500/10 dark:text-error-400">{error}</div>
       )}
-      <div>
-        <label htmlFor="pl-nombre" className="mb-1.5 block text-sm font-medium text-gray-700">
-          Nombre
-        </label>
+      <Field label="Nombre" htmlFor="pl-nombre">
         <input
           id="pl-nombre"
           type="text"
@@ -185,11 +173,8 @@ function PlatoForm({ token, restauranteId, categoriaId, initial, onDone, onCance
           className={inputCls}
           required
         />
-      </div>
-      <div>
-        <label htmlFor="pl-descripcion" className="mb-1.5 block text-sm font-medium text-gray-700">
-          Descripción
-        </label>
+      </Field>
+      <Field label="Descripción" htmlFor="pl-descripcion">
         <textarea
           id="pl-descripcion"
           value={form.descripcion}
@@ -197,12 +182,9 @@ function PlatoForm({ token, restauranteId, categoriaId, initial, onDone, onCance
           rows={2}
           className={inputCls}
         />
-      </div>
+      </Field>
       <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label htmlFor="pl-precio" className="mb-1.5 block text-sm font-medium text-gray-700">
-            Precio (COP)
-          </label>
+        <Field label="Precio (COP)" htmlFor="pl-precio">
           <input
             id="pl-precio"
             type="number"
@@ -213,11 +195,8 @@ function PlatoForm({ token, restauranteId, categoriaId, initial, onDone, onCance
             className={inputCls}
             required
           />
-        </div>
-        <div>
-          <label htmlFor="pl-estado" className="mb-1.5 block text-sm font-medium text-gray-700">
-            Estado
-          </label>
+        </Field>
+        <Field label="Estado" htmlFor="pl-estado">
           <select
             id="pl-estado"
             value={form.estado}
@@ -227,31 +206,31 @@ function PlatoForm({ token, restauranteId, categoriaId, initial, onDone, onCance
             <option value="DISPONIBLE">Disponible</option>
             <option value="AGOTADO">Agotado</option>
           </select>
-        </div>
+        </Field>
       </div>
       <div>
         <div className="mb-1.5 flex items-center justify-between">
-          <label className="text-sm font-medium text-gray-700">Ingredientes</label>
+          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Ingredientes</label>
           <button
             type="button"
             onClick={() =>
               setForm((f) => ({ ...f, ingredientes: [...f.ingredientes, { nombre: '', cantidad: '', medida: '' }] }))
             }
-            className="flex min-h-[44px] items-center gap-1 rounded-lg px-2 text-sm font-semibold text-orange-600 hover:bg-orange-50"
+            className="flex min-h-[44px] items-center gap-1 rounded-lg px-2 text-sm font-semibold text-brand-600 hover:bg-brand-50 dark:text-brand-400 dark:hover:bg-brand-500/10"
           >
             <FiPlus className="h-4 w-4" /> Agregar
           </button>
         </div>
         <div className="space-y-2">
           {form.ingredientes.map((ing, i) => (
-            <div key={i} className="space-y-2 rounded-xl border border-gray-200 bg-gray-50/50 p-3">
+            <div key={i} className="space-y-2 rounded-xl border border-gray-200 bg-gray-50/50 p-3 dark:border-gray-700 dark:bg-gray-800/50">
               <div className="flex items-center justify-between gap-2">
                 <input
                   type="text"
                   value={ing.nombre}
                   onChange={(e) => setIngrediente(i, 'nombre', e.target.value)}
                   placeholder="Nombre del ingrediente"
-                  className={`${inputCls} w-full`}
+                  className={inputCls}
                   aria-label={`Ingrediente ${i + 1}`}
                 />
                 <button
@@ -259,16 +238,13 @@ function PlatoForm({ token, restauranteId, categoriaId, initial, onDone, onCance
                   onClick={() => setForm((f) => ({ ...f, ingredientes: f.ingredientes.filter((_, j) => j !== i) }))}
                   disabled={form.ingredientes.length === 1}
                   aria-label={`Quitar ingrediente ${i + 1}`}
-                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-30"
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-error-50 hover:text-error-600 disabled:cursor-not-allowed disabled:opacity-30 dark:hover:bg-error-500/10"
                 >
                   <FiTrash2 className="h-4 w-4" />
                 </button>
               </div>
               <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label htmlFor={`ing-cant-${i}`} className="mb-1 block text-xs font-medium text-gray-500">
-                    Cantidad
-                  </label>
+                <Field label="Cantidad" htmlFor={`ing-cant-${i}`}>
                   <input
                     id={`ing-cant-${i}`}
                     type="number"
@@ -278,11 +254,8 @@ function PlatoForm({ token, restauranteId, categoriaId, initial, onDone, onCance
                     placeholder="250"
                     className={inputCls}
                   />
-                </div>
-                <div>
-                  <label htmlFor={`ing-med-${i}`} className="mb-1 block text-xs font-medium text-gray-500">
-                    Medida
-                  </label>
+                </Field>
+                <Field label="Medida" htmlFor={`ing-med-${i}`}>
                   <input
                     id={`ing-med-${i}`}
                     type="text"
@@ -291,19 +264,19 @@ function PlatoForm({ token, restauranteId, categoriaId, initial, onDone, onCance
                     placeholder="g, un, ml..."
                     className={inputCls}
                   />
-                </div>
+                </Field>
               </div>
             </div>
           ))}
         </div>
       </div>
       <div className="flex gap-3 pt-1">
-        <button type="button" onClick={onCancel} className={btnGhost}>
+        <Button variant="outline" type="button" onClick={onCancel} className="flex-1">
           Cancelar
-        </button>
-        <button type="submit" disabled={saving} className={btnPrimary}>
+        </Button>
+        <Button type="submit" disabled={saving} className="flex-1">
           {saving ? 'Guardando...' : initial ? 'Guardar cambios' : 'Crear plato'}
-        </button>
+        </Button>
       </div>
     </form>
   )
@@ -377,12 +350,9 @@ function Platos() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
-        <div className="flex items-center gap-3 text-gray-500">
-          <svg className="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-          </svg>
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-950">
+        <div className="flex items-center gap-3 text-gray-500 dark:text-gray-400">
+          <Spinner className="h-5 w-5" />
           Cargando...
         </div>
       </div>
@@ -444,52 +414,99 @@ function Platos() {
     }
   }
 
+  const irA = (to) => {
+    navigate(to)
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50 pb-16">
+    <div className="min-h-screen bg-gray-50 pb-16 dark:bg-gray-950">
       {/* Navbar */}
-      <nav className="sticky top-0 z-40 border-b border-gray-100 bg-white/80 backdrop-blur-md">
+      <nav className="sticky top-0 z-40 border-b border-gray-100 bg-white/80 backdrop-blur-md dark:border-gray-800 dark:bg-gray-900/80">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
           <button
-            onClick={() => navigate('/dashboard')}
-            className="flex min-h-[44px] items-center gap-2 rounded-full px-3 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100"
+            onClick={() => irA('/dashboard')}
+            title="Volver al panel de administración"
+            className="hidden min-h-11 items-center gap-2 rounded-full px-3 text-sm font-medium text-gray-600 dark:text-gray-400 transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 xl:flex"
           >
             <FiArrowLeft className="h-4 w-4" />
             Panel
           </button>
           <div className="flex items-center gap-2">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-orange-600 font-bold text-lg text-white">Q</span>
-            <span className="text-lg font-bold tracking-tight text-gray-900">Platos</span>
+            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600 font-bold text-lg text-white">Q</span>
+            <span className="text-lg font-bold tracking-tight text-gray-900 dark:text-gray-100">Platos</span>
           </div>
-          <button
-            onClick={handleLogout}
-            aria-label="Cerrar sesión"
-            className="flex min-h-[44px] items-center justify-center rounded-full px-3 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
-          >
-            <FiLogOut className="h-5 w-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            <div className="hidden items-center gap-2 xl:flex">
+              <button
+                onClick={handleLogout}
+                aria-label="Cerrar sesión"
+                title="Cerrar sesión"
+                className="flex min-h-11 items-center justify-center rounded-full px-3 text-gray-500 dark:text-gray-400 transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-200"
+              >
+                <FiLogOut className="h-5 w-5" />
+              </button>
+            </div>
+
+            <SideDrawer user={user}>
+              <div className="flex flex-1 flex-col overflow-y-auto p-2">
+                <DrawerItem
+                  icon={FiGrid}
+                  label="Panel"
+                  onClick={() => {
+                    irA('/dashboard')
+                  }}
+                />
+                <DrawerItem
+                  icon={FiUser}
+                  label="Perfil"
+                  onClick={() => {
+                    irA('/dashboard/perfil')
+                  }}
+                />
+                <DrawerItem
+                  icon={FiSettings}
+                  label="Configuración"
+                  onClick={() => {
+                    irA('/dashboard/perfil?tab=config')
+                  }}
+                />
+              </div>
+              <div className="border-t border-gray-100 p-2 dark:border-gray-800">
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  title="Cerrar sesión"
+                  className="flex min-h-12 w-full items-center gap-3 rounded-lg px-3 text-sm font-medium text-error-600 transition-colors hover:bg-error-50 dark:text-error-400 dark:hover:bg-error-500/10"
+                >
+                  <FiLogOut className="h-5 w-5" />
+                  Cerrar sesión
+                </button>
+              </div>
+            </SideDrawer>
+          </div>
         </div>
       </nav>
 
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
         {error && (
-          <div className="mb-6 flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+          <div className="mb-6 flex items-start gap-2 rounded-xl border border-error-200 bg-error-50 p-4 text-sm text-error-700 dark:bg-error-500/10 dark:text-error-400">
             <FiAlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
             {error}
           </div>
         )}
 
-        <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
+        <div className="grid gap-6 lg:grid-cols-[320px_1fr] lg:items-start">
           {/* Categorías */}
           <aside className="lg:sticky lg:top-20 lg:self-start">
-            <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-gray-100 sm:p-5">
+            <Card className="p-4 sm:p-5">
               <div className="mb-4 flex items-center justify-between">
-                <h2 className="flex items-center gap-2 font-semibold text-gray-900">
-                  <FiGrid className="h-4 w-4 text-orange-600" />
+                <h2 className="flex items-center gap-2 font-semibold text-gray-900 dark:text-gray-100">
+                  <FiGrid className="h-4 w-4 text-brand-600 dark:text-brand-400" />
                   Categorías
                 </h2>
                 <button
-                  onClick={() => setModals({ ...modals, categoria: { initial: null } })}
-                  className="flex min-h-[44px] items-center gap-1 rounded-full bg-orange-600 px-4 text-sm font-semibold text-white shadow-md shadow-orange-600/20 transition-all hover:bg-orange-700"
+                  onClick={() => setModals((m) => ({ ...m, categoria: { initial: null } }))}
+                  className="flex min-h-11 items-center gap-1 rounded-full bg-brand-600 px-4 text-sm font-semibold text-white shadow-md shadow-brand-600/20 transition-all hover:bg-brand-700"
                 >
                   <FiPlus className="h-4 w-4" />
                   Nueva
@@ -498,7 +515,7 @@ function Platos() {
 
               <ul className="space-y-2">
                 {categorias.length === 0 && (
-                  <li className="rounded-xl bg-orange-50 p-4 text-sm text-orange-700">
+                  <li className="rounded-xl bg-brand-50 p-4 text-sm text-brand-700 dark:bg-brand-500/10 dark:text-brand-400">
                     Aún no tienes categorías. Crea la primera con el botón "Nueva".
                   </li>
                 )}
@@ -509,8 +526,8 @@ function Platos() {
                       <div
                         className={`flex cursor-pointer items-center justify-between gap-2 rounded-xl border px-3 py-2.5 transition-all hover:-translate-y-0.5 ${
                           activa
-                            ? 'border-orange-200 bg-orange-50 shadow-sm'
-                            : 'border-transparent hover:border-gray-200 hover:bg-gray-50'
+                            ? 'border-brand-200 bg-brand-50 shadow-sm dark:border-brand-500/30 dark:bg-brand-500/10'
+                            : 'border-transparent hover:border-gray-200 hover:bg-gray-50 dark:hover:border-gray-700 dark:hover:bg-gray-800'
                         }`}
                         onClick={() => seleccionar(cat)}
                         role="button"
@@ -519,10 +536,10 @@ function Platos() {
                         aria-pressed={activa}
                       >
                         <div className="min-w-0">
-                          <p className={`truncate text-sm font-semibold ${activa ? 'text-orange-700' : 'text-gray-800'}`}>
+                          <p className={`truncate text-sm font-semibold ${activa ? 'text-brand-700 dark:text-brand-400' : 'text-gray-800 dark:text-gray-200'}`}>
                             {cat.nombre}
                           </p>
-                          <p className="text-xs text-gray-400">
+                          <p className="text-xs text-gray-400 dark:text-gray-500">
                             {platosDeCategoria(cat._id).length} plato(s)
                           </p>
                         </div>
@@ -530,10 +547,10 @@ function Platos() {
                           <button
                             onClick={(e) => {
                               e.stopPropagation()
-                              setModals({ ...modals, categoria: { initial: cat } })
+                              setModals((m) => ({ ...m, categoria: { initial: cat } }))
                             }}
                             aria-label={`Editar ${cat.nombre}`}
-                            className="flex h-11 w-11 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-orange-100 hover:text-orange-700"
+                            className="flex h-11 w-11 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-brand-100 hover:text-brand-700 dark:text-gray-400 dark:hover:bg-brand-500/20 dark:hover:text-brand-400"
                           >
                             <FiEdit2 className="h-4 w-4" />
                           </button>
@@ -543,7 +560,7 @@ function Platos() {
                               borrarCategoria(cat)
                             }}
                             aria-label={`Eliminar ${cat.nombre}`}
-                            className="flex h-11 w-11 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-red-50 hover:text-red-600"
+                            className="flex h-11 w-11 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-error-50 hover:text-error-600 dark:text-gray-400 dark:hover:bg-error-500/10 dark:hover:text-error-400"
                           >
                             <FiTrash2 className="h-4 w-4" />
                           </button>
@@ -553,27 +570,27 @@ function Platos() {
                   )
                 })}
               </ul>
-            </div>
+            </Card>
           </aside>
 
           {/* Platos */}
           <section>
             {!selected ? (
-              <div className="flex min-h-64 flex-col items-center justify-center rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-gray-100">
-                <FiPackage className="mb-3 h-10 w-10 text-gray-300" />
-                <p className="font-semibold text-gray-700">Selecciona una categoría</p>
-                <p className="mt-1 text-sm text-gray-500">Elige una categoría de la lista para ver sus platos.</p>
+              <div className="flex min-h-64 flex-col items-center justify-center rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-gray-100 dark:bg-gray-900 dark:ring-gray-800">
+                <FiPackage className="mb-3 h-10 w-10 text-gray-300 dark:text-gray-600" />
+                <p className="font-semibold text-gray-700 dark:text-gray-200">Selecciona una categoría</p>
+                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Elige una categoría de la lista para ver sus platos.</p>
               </div>
             ) : (
               <>
                 <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
-                    <h1 className="text-xl font-bold text-gray-900">{selected.nombre}</h1>
-                    {selected.descripcion && <p className="mt-0.5 text-sm text-gray-500">{selected.descripcion}</p>}
+                    <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">{selected.nombre}</h1>
+                    {selected.descripcion && <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">{selected.descripcion}</p>}
                   </div>
                   <button
-                    onClick={() => setModals({ ...modals, plato: { initial: null } })}
-                    className="flex min-h-[44px] items-center justify-center gap-1 rounded-full bg-orange-600 px-5 text-sm font-semibold text-white shadow-lg shadow-orange-600/20 transition-all hover:bg-orange-700"
+                    onClick={() => setModals((m) => ({ ...m, plato: { initial: null } }))}
+                    className="flex min-h-11 items-center justify-center gap-1 rounded-full bg-brand-600 px-5 text-sm font-semibold text-white shadow-lg shadow-brand-600/20 transition-all hover:bg-brand-700"
                   >
                     <FiPlus className="h-4 w-4" />
                     Nuevo plato
@@ -581,44 +598,46 @@ function Platos() {
                 </div>
 
                 {platosSeleccionados.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-gray-100">
-                    <FiCoffee className="mb-3 h-10 w-10 text-gray-300" />
-                    <p className="font-semibold text-gray-700">Sin platos todavía</p>
-                    <p className="mt-1 text-sm text-gray-500">Crea el primer plato de esta categoría.</p>
+                  <div className="flex flex-col items-center justify-center rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-gray-100 dark:bg-gray-900 dark:ring-gray-800">
+                    <FiCoffee className="mb-3 h-10 w-10 text-gray-300 dark:text-gray-600" />
+                    <p className="font-semibold text-gray-700 dark:text-gray-200">Sin platos todavía</p>
+                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Crea el primer plato de esta categoría.</p>
                   </div>
                 ) : (
                   <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                     {platosSeleccionados.map((plato) => (
                       <article
                         key={plato._id}
-                        className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-gray-100 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:shadow-orange-100/50"
+                        className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-gray-100 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:shadow-brand-100/50 dark:bg-gray-900 dark:ring-gray-800 dark:hover:shadow-brand-500/10"
                       >
                         <div className="mb-3 flex items-start justify-between gap-2">
-                          <h3 className="font-semibold text-gray-900">{plato.nombre}</h3>
+                          <h3 className="font-semibold text-gray-900 dark:text-gray-100">{plato.nombre}</h3>
                           <span
                             className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${
-                              plato.estado === 'DISPONIBLE' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'
+                              plato.estado === 'DISPONIBLE'
+                                ? 'bg-success-50 text-success-700 dark:bg-success-500/10 dark:text-success-400'
+                                : 'bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400'
                             }`}
                           >
                             {plato.estado === 'DISPONIBLE' ? 'Disponible' : 'Agotado'}
                           </span>
                         </div>
                         {plato.descripcion && (
-                          <p className="mb-3 line-clamp-2 text-sm text-gray-500">{plato.descripcion}</p>
+                          <p className="mb-3 line-clamp-2 text-sm text-gray-500 dark:text-gray-400">{plato.descripcion}</p>
                         )}
-                        <p className="mb-3 text-lg font-bold text-orange-600">{formatCOP(plato.precio)}</p>
+                        <p className="mb-3 text-lg font-bold text-brand-600 dark:text-brand-400">{formatCOP(plato.precio)}</p>
                         {plato.ingredientes?.length > 0 && (
-                          <p className="mb-4 line-clamp-1 text-xs text-gray-400">
+                          <p className="mb-4 line-clamp-1 text-xs text-gray-400 dark:text-gray-500">
                             {plato.ingredientes.map((i) => i.nombre).join(', ')}
                           </p>
                         )}
-                        <div className="flex items-center justify-between gap-2 border-t border-gray-100 pt-3">
+                        <div className="flex items-center justify-between gap-2 border-t border-gray-100 pt-3 dark:border-gray-800">
                           <button
                             onClick={() => toggleEstadoPlato(plato)}
-                            className="flex min-h-[44px] items-center gap-1.5 rounded-lg px-2 text-xs font-semibold text-gray-600 transition-colors hover:bg-gray-50"
+                            className="flex min-h-11 items-center gap-1.5 rounded-lg px-2 text-xs font-semibold text-gray-600 transition-colors hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800"
                           >
                             {plato.estado === 'DISPONIBLE' ? (
-                              <FiToggleRight className="h-5 w-5 text-green-600" />
+                              <FiToggleRight className="h-5 w-5 text-success-600" />
                             ) : (
                               <FiToggleLeft className="h-5 w-5 text-amber-500" />
                             )}
@@ -626,16 +645,16 @@ function Platos() {
                           </button>
                           <div className="flex items-center gap-1">
                             <button
-                              onClick={() => setModals({ ...modals, plato: { initial: plato } })}
+                              onClick={() => setModals((m) => ({ ...m, plato: { initial: plato } }))}
                               aria-label={`Editar ${plato.nombre}`}
-                              className="flex h-11 w-11 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-orange-100 hover:text-orange-700"
+                              className="flex h-11 w-11 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-brand-100 hover:text-brand-700 dark:text-gray-400 dark:hover:bg-brand-500/20 dark:hover:text-brand-400"
                             >
                               <FiEdit2 className="h-4 w-4" />
                             </button>
                             <button
                               onClick={() => borrarPlato(plato)}
                               aria-label={`Eliminar ${plato.nombre}`}
-                              className="flex h-11 w-11 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-red-50 hover:text-red-600"
+                              className="flex h-11 w-11 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-error-50 hover:text-error-600 dark:text-gray-400 dark:hover:bg-error-500/10 dark:hover:text-error-400"
                             >
                               <FiTrash2 className="h-4 w-4" />
                             </button>

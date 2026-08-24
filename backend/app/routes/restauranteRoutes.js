@@ -2,6 +2,16 @@ const express = require('express');
 const router = express.Router();
 const RestauranteController = require('../controllers/Restaurante.Controller');
 const authMiddleware = require('../middleware/authMiddleware');
+const validate = require('../middleware/validate');
+const {
+    restauranteSchema,
+    crearMiRestauranteSchema,
+    updateRestauranteSchema,
+    categoriaSchema,
+    updateCategoriaSchema,
+    mesaSchema,
+    updateMesaSchema
+} = require('../validations/restaurante.validations');
 
 /**
  * @swagger
@@ -55,7 +65,7 @@ router.get('/menu/:qr_code', RestauranteController.verMenu);
  *       200:
  *         description: Lista de mesas
  */
-router.get('/:id/mesas', RestauranteController.listarMesas);
+router.get('/:id/mesas', authMiddleware, RestauranteController.listarMesas);
 
 /**
  * @swagger
@@ -80,7 +90,7 @@ router.get('/:id/mesas', RestauranteController.listarMesas);
  *       404:
  *         description: Mesa no encontrada
  */
-router.get('/:id/mesas/:mesaId', RestauranteController.mostrarMesa);
+router.get('/:id/mesas/:mesaId', authMiddleware, RestauranteController.mostrarMesa);
 
 /**
  * @swagger
@@ -114,7 +124,7 @@ router.get('/:id/mesas/:mesaId', RestauranteController.mostrarMesa);
  *       201:
  *         description: Mesa agregada
  */
-router.post('/:id/mesas', RestauranteController.agregarMesa);
+router.post('/:id/mesas', authMiddleware, validate(mesaSchema), RestauranteController.agregarMesa);
 
 /**
  * @swagger
@@ -150,7 +160,7 @@ router.post('/:id/mesas', RestauranteController.agregarMesa);
  *       200:
  *         description: Mesa editada
  */
-router.put('/:id/mesas/:mesaId', RestauranteController.editarMesa);
+router.put('/:id/mesas/:mesaId', authMiddleware, validate(updateMesaSchema), RestauranteController.editarMesa);
 
 /**
  * @swagger
@@ -173,7 +183,7 @@ router.put('/:id/mesas/:mesaId', RestauranteController.editarMesa);
  *       200:
  *         description: Mesa eliminada
  */
-router.delete('/:id/mesas/:mesaId', RestauranteController.eliminarMesa);
+router.delete('/:id/mesas/:mesaId', authMiddleware, RestauranteController.eliminarMesa);
 
 /**
  * @swagger
@@ -191,7 +201,7 @@ router.delete('/:id/mesas/:mesaId', RestauranteController.eliminarMesa);
  *       200:
  *         description: Todas las mesas eliminadas
  */
-router.delete('/:id/mesas', RestauranteController.eliminarTodasMesas);
+router.delete('/:id/mesas', authMiddleware, RestauranteController.eliminarTodasMesas);
 
 // === Rutas de Categorías ===
 
@@ -267,7 +277,7 @@ router.get('/:id/categorias/:categoriaId', authMiddleware, RestauranteController
  *       201:
  *         description: Categoría agregada
  */
-router.post('/:id/categorias', authMiddleware, RestauranteController.agregarCategoria);
+router.post('/:id/categorias', authMiddleware, validate(categoriaSchema), RestauranteController.agregarCategoria);
 
 /**
  * @swagger
@@ -301,7 +311,7 @@ router.post('/:id/categorias', authMiddleware, RestauranteController.agregarCate
  *       200:
  *         description: Categoría editada
  */
-router.put('/:id/categorias/:categoriaId', authMiddleware, RestauranteController.editarCategoria);
+router.put('/:id/categorias/:categoriaId', authMiddleware, validate(updateCategoriaSchema), RestauranteController.editarCategoria);
 
 /**
  * @swagger
@@ -344,6 +354,54 @@ router.delete('/:id/categorias/:categoriaId', authMiddleware, RestauranteControl
  */
 router.delete('/:id/categorias', authMiddleware, RestauranteController.eliminarTodasCategorias);
 
+// === Restaurantes del administrador autenticado ===
+
+/**
+ * @swagger
+ * /api/restaurantes/mios:
+ *   get:
+ *     summary: Lista los restaurantes del administrador autenticado
+ *     tags: [Restaurantes]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lista de restaurantes del admin
+ *       401:
+ *         description: No autorizado
+ */
+router.get('/mios', authMiddleware, RestauranteController.misRestaurantes);
+
+/**
+ * @swagger
+ * /api/restaurantes/mios:
+ *   post:
+ *     summary: Crea un restaurante para el administrador autenticado
+ *     tags: [Restaurantes]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - nombre
+ *               - ubicacion
+ *             properties:
+ *               nombre:
+ *                 type: string
+ *               ubicacion:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Restaurante creado
+ *       400:
+ *         description: Datos faltantes
+ */
+router.post('/mios', authMiddleware, validate(crearMiRestauranteSchema), RestauranteController.crearMiRestaurante);
+
 // === Rutas generales de restaurante ===
 
 /**
@@ -365,7 +423,7 @@ router.delete('/:id/categorias', authMiddleware, RestauranteController.eliminarT
  *       404:
  *         description: Restaurante no encontrado
  */
-router.get('/:id', RestauranteController.show);
+router.get('/:id', authMiddleware, RestauranteController.show);
 
 /**
  * @swagger
@@ -396,7 +454,9 @@ router.get('/:id', RestauranteController.show);
  *       400:
  *         description: Datos inválidos
  */
-router.post('/', RestauranteController.store);
+// Público: parte del flujo de registro (crea admin + restaurante en dos pasos).
+// Validado con Zod; el resto del CRUD exige sesión.
+router.post('/', validate(restauranteSchema), RestauranteController.store);
 
 /**
  * @swagger
@@ -427,7 +487,7 @@ router.post('/', RestauranteController.store);
  *       404:
  *         description: Restaurante no encontrado
  */
-router.put('/:id', RestauranteController.update);
+router.put('/:id', authMiddleware, validate(updateRestauranteSchema), RestauranteController.update);
 
 /**
  * @swagger
@@ -447,6 +507,6 @@ router.put('/:id', RestauranteController.update);
  *       404:
  *         description: Restaurante no encontrado
  */
-router.delete('/:id', RestauranteController.destroy);
+router.delete('/:id', authMiddleware, RestauranteController.destroy);
 
 module.exports = router;

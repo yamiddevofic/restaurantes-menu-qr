@@ -40,6 +40,10 @@ const platoSchema = new Schema({
     type: Number,
     required: true
   },
+  imagen: {
+    type: String,
+    default: null
+  },
   estado: {
     type: String,
     enum: ['DISPONIBLE', 'AGOTADO'],

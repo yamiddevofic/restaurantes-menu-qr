@@ -1,6 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const ReporteController = require('../controllers/Reporte.Controller');
+const authMiddleware = require('../middleware/authMiddleware');
+
+// Los reportes son administración: siempre se exige sesión
+router.use(authMiddleware);
 
 /**
  * @swagger

@@ -16,6 +16,12 @@ const empleadoSchema = new Schema({
     type: String,
     required: true
   },
+  bio: {
+    type: String
+  },
+  avatar: {
+    type: String
+  },
   usuario: {
     type: String,
     required: true,
@@ -33,7 +39,7 @@ const empleadoSchema = new Schema({
   },
   estado: {
     type: String,
-    enum: ['ACTIVO', 'INACTIVO'],
+    enum: ['ACTIVO', 'INACTIVO', 'BAJA'],
     default: 'ACTIVO'
   }
 });

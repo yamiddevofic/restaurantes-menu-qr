@@ -61,7 +61,7 @@ const getStats = async (req, res) => {
             ventasHoy
         });
     } catch (err) {
-        res.status(500).json({ message: 'Error al calcular estadísticas', error: err.message });
+        res.status(500).json({ message: 'Error al calcular estadísticas' });
     }
 };
 
